@@ -1,0 +1,6 @@
+*~
+debian/renametoix/*
+debian/renametoix.*
+debian/.debhelper
+debian/files
+debian/debhelper-build-stamp

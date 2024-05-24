@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=Renametoix
+Comment=Rename files and directories
+Exec=renametoix
+Icon=renametoix
+Terminal=false
+Type=Application
+Encoding=UTF-8
+Categories=GTK;Utility
+Keywords=rename;
+StartupNotify=false
