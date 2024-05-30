@@ -1,6 +1,8 @@
 # Description
 
-Renametoix is a Gtk3 file renamer designed to be an alternative to [Linux Mint](https://www.linuxmint.com/) bulky as bulk file renamer on nemo File Manager.
+[Renametoix](https://devpieces.a-bentofreire.com/projects/renametoix) is a Gtk3 file renamer designed to be an alternative to [Linux Mint](https://www.linuxmint.com/) bulky as bulk file renamer on nemo File Manager.
+
+![Image](https://devpieces.a-bentofreire.com/files/projects/renametoix/example-macro.gif)
 
 ## Features
 
@@ -8,8 +10,8 @@ Renametoix is a Gtk3 file renamer designed to be an alternative to [Linux Mint](
 - Start index for counter Macro.
 - Configurable list of macros.
 - Single click macro.
-- Revert previous renames.
-- Send notification after renames.
+- Revert previous renames (first activate on Settings dialog).
+- Send notification after renames (first activate on Settings dialog).
 
 ## Installation
 

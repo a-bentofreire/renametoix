@@ -1,5 +1,5 @@
 Source: renametoix
-Section: unknown
+Section: misc
 Priority: optional
 Maintainer: Alexandre Bento Freire <dev@a-bentofreire.com>
 Build-Depends: debhelper (>=10)

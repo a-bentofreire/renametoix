@@ -4,3 +4,5 @@ debian/renametoix.*
 debian/.debhelper
 debian/files
 debian/debhelper-build-stamp
+.private/*
+.src/*
