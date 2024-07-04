@@ -4,7 +4,7 @@ Priority: optional
 Maintainer: Alexandre Bento Freire <dev@a-bentofreire.com>
 Build-Depends: debhelper (>=10)
 Standards-Version: 4.0.0
-Homepage: https://devpieces.a-bentofreire.com/projects/renametoix
+Homepage: https://www.devpieces.com/projects/renametoix
 
 Package: renametoix
 Architecture: any
