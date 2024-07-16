@@ -1,8 +1,8 @@
 # Description
 
-[Renametoix](https://www.devpieces.com/projects/renametoix) is a Gtk3 file renamer designed to be an alternative to [Linux Mint](https://www.linuxmint.com/) bulky as bulk file renamer on nemo File Manager.
+[RenameToIX](https://www.devtoix.com/en/projects/renametoix) is a Gtk3 file renamer designed to be an alternative to [Linux Mint](https://www.linuxmint.com/) bulky as bulk file renamer on nemo File Manager.
 
-![Image](https://www.devpieces.com/files/projects/renametoix/example-macro.gif)
+![Image](https://www.devtoix.com/files/projects/renametoix/example-macro.gif)
 
 ## Features
 
@@ -23,7 +23,7 @@ sudo apt install renametoix
 
 ## Requirements
 
-Renametoix uses `xdg-open` and `notify-send` external commands.
+RenameToIX uses `xdg-open` and `notify-send` external commands.
 
 ## Macros
 

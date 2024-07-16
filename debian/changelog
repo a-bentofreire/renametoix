@@ -1,3 +1,9 @@
+renametoix (1.0.3) jammy; urgency=low
+
+  * Rebrand
+
+ -- Alexandre Bento Freire <dev@a-bentofreire.com>  Tue,  15 Jul 2024 11:00:00 +0000
+
 renametoix (1.0.2) jammy; urgency=low
 
   * Update links
