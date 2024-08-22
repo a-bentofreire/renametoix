@@ -22,6 +22,8 @@ import gi
 gi.require_version("Gtk", "3.0")  # noqa
 from gi.repository import Gtk,  Gdk, GLib
 
+REVERT_RENAME_SH = "revert-rename.sh"
+
 arg_parser = argparse.ArgumentParser()
 arg_parser.add_argument("-console", action='store_true', default=False, help="Console mode")  # noqa
 arg_parser.add_argument("-start-index", type=int, default=1, help="Start index used with there is a %%0n macro")  # noqa
@@ -31,7 +33,7 @@ arg_parser.add_argument("-include-ext", action='store_true', default=False,
 arg_parser.add_argument("-find", default="", help="Text to Find")
 arg_parser.add_argument("-replace", default="", help="Text to Replace")
 arg_parser.add_argument("-allow-revert", action='store_true', default=False,
-                        help="Generates a revert file (console mode)")
+                        help="Generates a revert script (console mode)")
 arg_parser.add_argument("-test-mode", action='store_true', default=False,
                         help="Outputs only the new result, doesn't rename (console mode)")
 arg_parser.add_argument("-revert-last", action='store_true', default=False,
@@ -61,6 +63,7 @@ class ConsoleRename:
         self.rename_count = 0
         self.allow_renames = False
         self.files_list_store = []
+        self.revert_file = None
 
     def load_cfg(self):
         if os.path.isfile(self.cfg_name):
@@ -75,20 +78,6 @@ class ConsoleRename:
             text = text.replace(f"%{macro_name}", stamp_parts[index])
         text = text.replace(f"%E", os.path.splitext(filename)[1])
         return text
-
-    def add_revert(self, fullname, new_fullname, basename, new_basename):
-        fullname = os.path.abspath(fullname)
-        new_fullname = os.path.abspath(new_fullname)
-        if self.rename_count == 0:
-            if not os.path.exists(self.cfg["revert-path"]):
-                os.makedirs(self.cfg["revert-path"], 0o700)
-            self.revert_name = os.path.join(self.cfg["revert-path"], "revert-rename-") + \
-                time.strftime("%Y-%m-%d-%H_%M_%S.sh", time.localtime())
-            self.revert_file = open(self.revert_name, "w")
-            self.revert_file.write("echo Reverting Changes:\n\n")
-
-        self.revert_file.write(f"printf \"'{new_basename}' → '{basename}'" +
-                               f"\\n\"\nmv '{new_fullname}' '{fullname}'\n")
 
     def generate_new_names(self, start_index, is_reg_ex, include_ext, before, after):
         new_filenames = set()
@@ -119,8 +108,11 @@ class ConsoleRename:
                 self.files_list_store[index] = [dirname, basename, basename]
 
     def add_files(self, filenames):
+        cur_dir = os.path.realpath(os.curdir)
         for filename in filenames:
             if os.path.exists(filename) and filename not in self.files:
+                if os.path.dirname(filename) == "":
+                    filename = os.path.join(cur_dir, filename)
                 basename = os.path.basename(filename)
                 self.files_list_store.append([os.path.dirname(filename), basename, basename])
                 self.files.append(filename)
@@ -131,6 +123,7 @@ class ConsoleRename:
                         GLib.filename_from_uri(uri)[0] for uri in self.args.files])
 
     def update_renames(self):
+        # to override
         pass
 
     def console_apply_renames(self, allow_revert, test_mode=False):
@@ -148,28 +141,11 @@ class ConsoleRename:
                         else:
                             print(f"{src_file} -> {os.path.basename(dst_file)}")
             finally:
-                self.close_revert_file()
-
-    def close_revert_file(self):
-        if self.rename_count and self.revert_file:
-            self.revert_file.close()
-            os.chmod(self.revert_name, stat.S_IEXEC | stat.S_IREAD | stat.S_IWRITE)
-            main_revert_name = os.path.join(self.cfg["revert-path"], "revert-rename.sh")
-            main_revert_file = open(main_revert_name, "w")
-            main_revert_file.write(f"{self.revert_name}\n")
-            main_revert_file.close()
-            os.chmod(main_revert_name, stat.S_IEXEC | stat.S_IREAD | stat.S_IWRITE)
+                self.close_revert_script()
 
     def console_mode_rename(self):
         if args.revert_last:
-            last_rename = os.path.join(self.cfg["revert-path"], "revert-rename.sh")
-            if os.path.exists(last_rename):
-                os.system(last_rename)
-                os.unlink(last_rename)
-                exit(1)
-            else:
-                sys.stderr.write(f"{last_rename} doesn't exists")
-                exit(0)
+            exit(self.exec_revert_script())
 
         self.add_source_files()
         if not self.files:
@@ -183,6 +159,71 @@ class ConsoleRename:
         self.console_apply_renames(self.args.allow_revert, self.args.test_mode)
         if self.rename_count:
             print(f"{self.rename_count} files renamed")
+
+    # Revert Files
+
+    def add_revert(self, fullname, new_fullname, basename, new_basename):
+        fullname = os.path.abspath(fullname)
+        new_fullname = os.path.abspath(new_fullname)
+        if self.rename_count == 0:
+            if not os.path.exists(self.cfg["revert-path"]):
+                os.makedirs(self.cfg["revert-path"], 0o700)
+            self.revert_name = os.path.join(self.cfg["revert-path"], "revert-rename-") + \
+                time.strftime("%Y-%m-%d-%H_%M_%S.sh", time.localtime())
+            self.revert_file = open(self.revert_name, "w")
+            self.revert_file.write("echo Reverting Changes:\n\n")
+
+        self.revert_file.write(f"printf \"'{new_basename}' → '{basename}'\\n\" 2>/dev/null\n" +
+                               f"mv '{new_fullname}' '{fullname}'\n")
+
+    def exec_revert_script(self, revert_basename=None):
+        revert_script = self.get_revert_script(revert_basename)
+        if not revert_basename and not os.path.exists(revert_script):
+            self.populate_revert_list_store([])
+            if len(self.revert_scripts_with_caption) == 0:
+                return 1
+            revert_script = self.get_revert_script(self.revert_scripts_with_caption[0][0])
+
+        if os.path.exists(revert_script):
+            if revert_script == self.get_revert_script():
+                with open(revert_script, "r") as f:
+                    target_script = f.read().strip()
+                    f.close()
+                os.unlink(revert_script)
+                revert_script = target_script
+            print(f"Execute {revert_script}")
+            os.system(revert_script)
+            os.unlink(revert_script)
+            return 0
+        else:
+            sys.stderr.write(f"{revert_script} doesn't exists")
+            return 1
+
+    def close_revert_script(self):
+        if self.rename_count and self.revert_file:
+            self.revert_file.close()
+            os.chmod(self.revert_name, stat.S_IEXEC | stat.S_IREAD | stat.S_IWRITE)
+            main_revert_name = self.get_revert_script()
+            main_revert_file = open(main_revert_name, "w")
+            main_revert_file.write(f"{self.revert_name}\n")
+            main_revert_file.close()
+            os.chmod(main_revert_name, stat.S_IEXEC | stat.S_IREAD | stat.S_IWRITE)
+
+    def get_revert_script(self, revert_basename=None):
+        return os.path.join(self.cfg["revert-path"], revert_basename or REVERT_RENAME_SH)
+
+    def populate_revert_list_store(self, revert_list_store):
+        revert_list_store.clear()
+        if os.path.isdir(self.cfg["revert-path"]):
+            self.revert_scripts_with_caption = []
+            for script in sorted(os.listdir(self.cfg["revert-path"]), reverse=True):
+                if script.endswith(".sh"):
+                    caption = "Latest Revert" if script == REVERT_RENAME_SH else \
+                        re.sub(r"revert-rename-([0-9-]+)-(\d+)_(\d+)_(\d+)\.sh", r"\1 \2:\3:\4", script)
+                    self.revert_scripts_with_caption.append([script, caption])
+                    revert_list_store.append([caption])
+        return revert_list_store
+
 
 # ------------------------------------------------------------------------
 #                               GUIRename
@@ -284,9 +325,10 @@ class GUIRename(ConsoleRename):
     def execute_revert_button_clicked(self, widget):
         path, _focus = self.revert_files_tree.get_cursor()
         if path:
-            script_name, caption = self.revert_files_with_caption[path.get_indices()[0]]
+            script_name, caption = self.revert_scripts_with_caption[path.get_indices()[0]]
             if script_name and self.confirmation_dialog("Are you sure want to execute %s?" % caption):
-                os.system(os.path.join(self.cfg['revert-path'], os.path.join(script_name)))
+                self.exec_revert_script(script_name)
+                self.populate_revert_list_store(self.builder.get_object("revert_list_store"))
 
     def files_column_clicked(self, column):
         if self.sort_column:
@@ -310,18 +352,8 @@ class GUIRename(ConsoleRename):
         self.close_window()
 
     def revert_dialog_clicked(self, widget):
-        revert_list_store = self.builder.get_object("revert_list_store")
-        if os.path.isdir(self.cfg["revert-path"]):
-            self.revert_files_with_caption = []
-            for script in sorted(os.listdir(self.cfg["revert-path"]), reverse=True):
-                if script.endswith(".sh"):
-                    caption = "Latest Revert" if script == "revert-rename.sh" else \
-                        re.sub(r"revert-rename-([0-9-]+)-(\d+)_(\d+)_(\d+)\.sh", r"\1 \2:\3:\4", script)
-                    self.revert_files_with_caption.append([script, caption])
-                    revert_list_store.append([caption])
-
+        self.populate_revert_list_store(self.builder.get_object("revert_list_store"))
         self.revert_dialog.run()
-        revert_list_store.clear()
         self.revert_dialog.hide()
 
     def settings_button_clicked(self, widget):
