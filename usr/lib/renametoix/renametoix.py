@@ -7,7 +7,7 @@
 # Licensed under the GPLv3 License.
 # ------------------------------------------------------------------------
 
-# cSpell:ignoreRegExp (hexpand|keyval|reorderable|renametoix|setproctitle)
+# cSpell:ignoreRegExp (hexpand|keyval|reorderable|renametoix|setproctitle|thunar|nemo|renamer)
 import io
 import os
 import re
@@ -20,9 +20,18 @@ import yaml
 
 import gi
 gi.require_version("Gtk", "3.0")  # noqa
-from gi.repository import Gtk,  Gdk, GLib
+from gi.repository import Gtk,  Gdk, GLib, Gio
 
 REVERT_RENAME_SH = "revert-rename.sh"
+
+macros_functions = {
+    "upper": lambda m: m.upper(),
+    "u": lambda m: m.upper(),
+    "lower": lambda m: m.lower(),
+    "l": lambda m: m.lower(),
+    "capitalize": lambda m: m.capitalize(),
+    "c": lambda m: m.capitalize()
+}
 
 arg_parser = argparse.ArgumentParser()
 arg_parser.add_argument("-console", action='store_true', default=False, help="Console mode")  # noqa
@@ -54,7 +63,11 @@ class ConsoleRename:
             "revert-path": os.path.join(os.environ["HOME"], ".revert-renames"),
             "allow-revert": False,
             "send-notification": False,
-            "macros": ["%0n", "%00n", "%000n", "%Y-%m-%d", "%Y-%m-%d-%H_%M_%S", "%Y-%m-%d %H_%M_%S", "%I"]
+            "macros": [
+                "%0n", "%00n", "%000n", "%Y-%m-%d", "%Y-%m-%d-%H_%M_%S", "%Y-%m-%d %H_%M_%S", "%I",
+                "%0{upper}", "%0{lower}", "%0{capitalize}",
+                "%1{upper}", "%1{lower}", "%1{capitalize}",
+            ]
         }
         self.cfg_name = os.path.join(GLib.get_user_config_dir(), 'renametoix', 'renametoix.yaml')
         self.load_cfg()
@@ -71,8 +84,16 @@ class ConsoleRename:
                 self.cfg = yaml.safe_load(input_file)
             input_file.close()
 
-    def apply_macros(self, text, start_index, filename):
+    def macro_functions(self, group_nr, macro_name, groups):
+        if len(groups) <= group_nr:
+            return ""
+        text = groups[group_nr]
+        func = macros_functions.get(macro_name)
+        return func(text) if func else text
+
+    def apply_macros(self, text, start_index, filename, groups):
         text = re.sub(r"%(\d*)n", lambda m: "%0*d" % (len(m.group(1)) + 1, start_index), text)
+        text = re.sub(r"%(\d)\{([a-z]+)\}", lambda m: self.macro_functions(int(m.group(1)), m.group(2), groups), text)
         stamp_parts = time.strftime("%Y_%m_%d_%H_%M_%S", time.localtime(os.path.getmtime(filename))).split("_")
         for index, macro_name in enumerate("YmdHMS"):
             text = text.replace(f"%{macro_name}", stamp_parts[index])
@@ -82,30 +103,43 @@ class ConsoleRename:
     def generate_new_names(self, start_index, is_reg_ex, include_ext, before, after):
         new_filenames = set()
         self.renames.clear()
-        self.allow_renames = True
         for index, filename in enumerate(self.files):
-            basename = os.path.basename(filename)
-            dirname = os.path.dirname(filename)
-            from_text, ext = os.path.splitext(basename) if not include_ext else (basename, None)
-            new_text = re.sub(before, after, from_text, flags=re.A) if is_reg_ex \
-                else from_text.replace(before, after)
-            if new_text != from_text:
-                if re.search(r"%[0A-Za-z]", new_text):
-                    new_text = self.apply_macros(new_text, start_index, filename)
-                    start_index += 1
-                new_basename = (new_text + ext) if not include_ext else new_text
-                new_filename = os.path.join(dirname, new_basename)
-                self.files_list_store[index] = [dirname, basename, new_basename]
-                if new_text:
-                    self.renames.append([filename, new_filename])
-                    self.allow_renames = self.allow_renames and new_filename not in new_filenames \
-                        and not os.path.exists(new_filename)
-                    if new_filename not in new_filenames:
-                        new_filenames.add(new_filename)
+            self.files_list_store[index][2] = self.files_list_store[index][1]
+        self.allow_renames = before != ""
+        if not self.allow_renames:
+            return
+
+        try:
+            for index, filename in enumerate(self.files):
+                basename = os.path.basename(filename)
+                dirname = os.path.dirname(filename)
+                from_text, ext = os.path.splitext(basename) if not include_ext else (basename, None)
+                new_text = re.sub(before, after, from_text, flags=re.A) if is_reg_ex \
+                    else from_text.replace(before, after)
+                if new_text != from_text:
+                    if re.search(r"%[0-9A-Za-z]", new_text):
+                        groups = [from_text]
+                        if is_reg_ex:
+                            matches = re.search(before, from_text, flags=re.A)
+                            if matches:
+                                groups = [matches.group(0)] + list(matches.groups())
+                        new_text = self.apply_macros(new_text, start_index, filename, groups)
+                        start_index += 1
+                    new_basename = (new_text + ext) if not include_ext else new_text
+                    new_filename = os.path.join(dirname, new_basename)
+                    self.files_list_store[index] = [dirname, basename, new_basename]
+                    if new_text:
+                        self.renames.append([filename, new_filename])
+                        self.allow_renames = self.allow_renames and new_filename not in new_filenames \
+                            and not os.path.exists(new_filename)
+                        if new_filename not in new_filenames:
+                            new_filenames.add(new_filename)
+                    else:
+                        self.allow_renames = False
                 else:
-                    self.allow_renames = False
-            else:
-                self.files_list_store[index] = [dirname, basename, basename]
+                    self.files_list_store[index] = [dirname, basename, basename]
+        except:
+            self.allow_renames = False
 
     def add_files(self, filenames):
         cur_dir = os.path.realpath(os.curdir)
@@ -224,11 +258,84 @@ class ConsoleRename:
                     revert_list_store.append([caption])
         return revert_list_store
 
+    # Integration
+    def get_integrations_paths(self):
+        home = os.environ["HOME"]
+        return {
+            "thunar": os.path.join(home, ".config/Thunar/uca.xml"),
+            "nautilus": os.path.join(home, ".local/share/nautilus/scripts/RenameToIX"),
+            "nemo": os.path.join(home, ".local/share/nemo/actions/RenameToIX.nemo_action")
+        }
+
+    def get_allowed_integrations(self):
+        paths = self.get_integrations_paths()
+        return {
+            "thunar": os.path.exists("/usr/bin/thunar") and os.path.exists(paths["thunar"]),
+            "nautilus": os.path.exists("/usr/bin/nautilus"),
+            "nemo-renamer": os.path.exists("/usr/bin/nemo"),
+            "nemo": os.path.exists("/usr/bin/nemo")
+        }
+
+    def set_integrations(self, to_integrate):
+        paths = self.get_integrations_paths()
+        if "nemo-renamer" in to_integrate:
+            try:
+                Gio.Settings.new("org.nemo.preferences"). \
+                    set_value("bulk-rename-tool",
+                              GLib.Variant("ay", "/usr/bin/renametoix".encode('utf-8') + b'\0'))
+            except:
+                pass
+
+        if "nemo" in to_integrate and not os.path.exists(paths["nemo"]):
+            os.makedirs(os.path.dirname(paths["nemo"]), exist_ok=True)
+            with open(paths["nemo"], "w") as f:
+                f.write("""[Nemo Action]
+Active=true
+Exec=bash -c "/usr/bin/renametoix %F"
+Selection=notnone
+Extensions=any
+Name=RenameToIX
+Quote=single""")
+                f.close()
+
+        if "nautilus" in to_integrate and not os.path.exists(paths["nautilus"]):
+            os.makedirs(os.path.dirname(paths["nautilus"]), exist_ok=True)
+            with open(paths["nautilus"], "w") as f:
+                f.write("/usr/bin/renametoix $NAUTILUS_SCRIPT_SELECTED_URIS " +
+                        ">/tmp/nautilus-script.log 2>>/tmp/nautilus-script-err.log")
+                f.close()
+            os.chmod(paths["nautilus"], stat.S_IEXEC | stat.S_IREAD | stat.S_IWRITE)
+
+        if "thunar" in to_integrate:
+            with open(paths["thunar"], "r+") as f:
+                content = f.read()
+                if not "renametoix" in content:
+                    content = content.replace("</actions>", """<action>
+	<icon>/usr/share/icons/hicolor/scalable/apps/renametoix.svg</icon>
+	<name>RenameToIX</name>
+	<submenu></submenu>
+	<unique-id>1724283846660573-2</unique-id>
+	<command>/usr/bin/renametoix %F</command>
+	<description></description>
+	<range>*</range>
+	<patterns>*</patterns>
+	<directories/>
+	<audio-files/>
+	<image-files/>
+	<other-files/>
+	<text-files/>
+	<video-files/>
+</action>
+</actions>""")
+                    f.seek(0)
+                    f.write(content)
+                    f.truncate()
+                f.close()
+
 
 # ------------------------------------------------------------------------
 #                               GUIRename
 # ------------------------------------------------------------------------
-
 
 class GUIRename(ConsoleRename):
 
@@ -242,9 +349,11 @@ class GUIRename(ConsoleRename):
         self.builder.add_from_file(os.path.join(os.path.splitext(sys.argv[0])[0] + ".ui"))
         self.app_window = self.builder.get_object("app_window")
         self.find_entry = self.connect("find_entry",
-                                       [[self.update_renames, "changed"], [self.entry_key_press, "key-press-event"]])
+                                       [[self.update_renames, "changed"],
+                                        [self.entry_key_press, "key-press-event"]])
         self.replace_entry = self.connect("replace_entry",
-                                          [[self.update_renames, "changed"], [self.entry_key_press, "key-press-event"]])
+                                          [[self.update_renames, "changed"],
+                                           [self.entry_key_press, "key-press-event"]])
         self.start_index_label_spin = self.connect("start_index_label_spin",
                                                    [[self.update_renames, "change-value"]])
         self.start_index_label_spin.set_adjustment(Gtk.Adjustment(
@@ -274,6 +383,11 @@ class GUIRename(ConsoleRename):
 
         self.settings_dialog = self.builder.get_object("settings_dialog")
         self.settings_dialog.add_buttons(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL, Gtk.STOCK_OK, Gtk.ResponseType.OK)
+        self.connect("integrate_button", [[self.integrate_clicked]])
+
+        self.integrate_dialog = self.builder.get_object("integrate_dialog")
+        self.integrate_dialog.add_buttons(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL, Gtk.STOCK_OK, Gtk.ResponseType.OK)
+
         self.revert_dialog = self.builder.get_object("revert_dialog")
         self.revert_dialog.add_buttons(Gtk.STOCK_CLOSE, Gtk.ResponseType.CLOSE)
         self.revert_files_tree = self.builder.get_object("revert_files_tree")
@@ -376,6 +490,30 @@ class GUIRename(ConsoleRename):
             self.update_macro_widgets()
             self.save_cfg()
         self.settings_dialog.hide()
+
+    def integrate_clicked(self, widget):
+        integrations = self.get_allowed_integrations()
+        managers_names = {
+            "nemo-renamer": "nemo_integrate_rename_check",
+            "nemo": "nemo_action_check",
+            "nautilus": "nautilus_script_check",
+            "thunar": "thunar_action_check"
+        }
+        for name in managers_names.keys():
+            check = self.builder.get_object(managers_names[name])
+            if integrations[name]:
+                check.set_active(True)
+            else:
+                check.set_sensitive(False)
+
+        response = self.integrate_dialog.run()
+        if response == Gtk.ResponseType.OK:
+            to_integrate = []
+            for name in managers_names.keys():
+                if self.builder.get_object(managers_names[name]).get_active():
+                    to_integrate.append(name)
+            self.set_integrations(to_integrate)
+        self.integrate_dialog.hide()
 
     # Methods
 

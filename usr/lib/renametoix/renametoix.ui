@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.38.2 -->
+<!-- Generated with glade 3.40.0 -->
 <interface>
   <requires lib="gtk+" version="3.24"/>
   <object class="GtkAboutDialog" id="about_dialog">
     <property name="can-focus">False</property>
     <property name="type-hint">dialog</property>
     <property name="program-name">RenameToIX</property>
-    <property name="version">1.0.5</property>
+    <property name="version">1.0.6</property>
     <property name="copyright" translatable="yes">© 2024 Alexandre Bento Freire</property>
     <property name="website">https://www.devtoix.com/en/projects/renametoix</property>
     <property name="authors">Alexandre Bento Freire</property>
@@ -48,6 +48,101 @@
       <!-- column-name gchararray3 -->
       <column type="gchararray"/>
     </columns>
+  </object>
+  <object class="GtkDialog" id="integrate_dialog">
+    <property name="can-focus">False</property>
+    <property name="type-hint">dialog</property>
+    <child internal-child="vbox">
+      <object class="GtkBox">
+        <property name="can-focus">False</property>
+        <property name="orientation">vertical</property>
+        <property name="spacing">2</property>
+        <child internal-child="action_area">
+          <object class="GtkButtonBox">
+            <property name="can-focus">False</property>
+            <property name="layout-style">end</property>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <!-- n-columns=1 n-rows=4 -->
+          <object class="GtkGrid">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <property name="margin-start">4</property>
+            <property name="margin-end">7</property>
+            <property name="margin-top">3</property>
+            <child>
+              <object class="GtkCheckButton" id="nemo_integrate_rename_check">
+                <property name="label" translatable="yes">Nemo Integrated Rename</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">False</property>
+                <property name="draw-indicator">True</property>
+              </object>
+              <packing>
+                <property name="left-attach">0</property>
+                <property name="top-attach">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="thunar_action_check">
+                <property name="label" translatable="yes">Thunar Action</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">False</property>
+                <property name="draw-indicator">True</property>
+              </object>
+              <packing>
+                <property name="left-attach">0</property>
+                <property name="top-attach">3</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="nautilus_script_check">
+                <property name="label" translatable="yes">Nautilus Script</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">False</property>
+                <property name="draw-indicator">True</property>
+              </object>
+              <packing>
+                <property name="left-attach">0</property>
+                <property name="top-attach">2</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="nemo_action_check">
+                <property name="label" translatable="yes">Nemo Action</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">False</property>
+                <property name="draw-indicator">True</property>
+              </object>
+              <packing>
+                <property name="left-attach">0</property>
+                <property name="top-attach">1</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">1</property>
+          </packing>
+        </child>
+      </object>
+    </child>
   </object>
   <object class="GtkTextBuffer" id="macros_editor_buffer"/>
   <object class="GtkMenu" id="macros_popup">
@@ -443,7 +538,7 @@
     <property name="can-focus">False</property>
     <property name="title" translatable="yes">Settings</property>
     <property name="default-width">400</property>
-    <property name="default-height">260</property>
+    <property name="default-height">400</property>
     <property name="type-hint">dialog</property>
     <property name="transient-for">app_window</property>
     <child internal-child="vbox">
@@ -455,6 +550,34 @@
           <object class="GtkButtonBox">
             <property name="can-focus">False</property>
             <property name="layout-style">end</property>
+            <child>
+              <object class="GtkLinkButton" id="help_button">
+                <property name="label" translatable="yes">Help</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">True</property>
+                <property name="relief">none</property>
+                <property name="uri">https://www.devtoix.com/en/projects/renametoix#macros</property>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="integrate_button">
+                <property name="label" translatable="yes">Integrate</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">True</property>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
             <child>
               <placeholder/>
             </child>
@@ -473,6 +596,10 @@
           <object class="GtkGrid" id="revert_grid">
             <property name="visible">True</property>
             <property name="can-focus">False</property>
+            <property name="margin-start">4</property>
+            <property name="margin-end">4</property>
+            <property name="margin-top">4</property>
+            <property name="margin-bottom">4</property>
             <property name="row-spacing">2</property>
             <property name="column-spacing">2</property>
             <child>

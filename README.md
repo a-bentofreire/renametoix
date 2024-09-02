@@ -1,13 +1,18 @@
 # Description
 
-[RenameToIX](https://www.devtoix.com/en/projects/renametoix) is a Gtk3 File Renamer designed to be an alternative to [Linux Mint](https://www.linuxmint.com/) bulky as file renamer on Nemo and Thunar File Manager.
+[RenameToIX](https://www.devtoix.com/en/projects/renametoix) is a Gtk3 File Renamer designed to be an alternative to [Linux Mint](https://www.linuxmint.com/) bulky as file renamer for Nemo, Nautilus and Thunar File Managers.
 
 ![Image](https://www.devtoix.com/files/projects/renametoix/example-macro.gif)
+
+Read section [Integrate](#integrate) on now to integrate with Nemo, Nautilus and Thunar.
+
+If you find this project useful, please, read the [Support this Project](#support-this-project) on how to contribute.  
 
 ## Features
 
 - GUI and Console mode.
 - Counter, file datetime, and extension Macros.
+- Function Macros with regex group capture: Lower, Upper, Capitalize.
 - Start index for counter Macro.
 - Configurable list of macros.
 - Single click macro.
@@ -36,6 +41,18 @@ RenameToIX uses `xdg-open` and `notify-send` external commands.
 - `%H` - file 2-digit hour
 - `%M` - file 2-digit minute
 - `%S` - file 2-digit second
+- `%0{upper}` `%0{u}` - uppercase  (function)
+- `%0{lower}` `%0{l}` - lowercase (function)
+- `%0{capitalize}` `%0{c}` - capitalize (function)
+
+## Macro functions
+
+The macro functions can also be used with regular expressions to capture groups.
+
+ex:
+- Find: `..(NEW).(design)`
+- Replace: `%1{l}-%2{u}`
+- Filename: `n-myNEW design.png` will become `n-new-DESIGN.png`
 
 ## Running in console mode
 
@@ -66,19 +83,30 @@ options:
 If the previous console mode rename was executed with `-allow-revert`, then:  
 `renametoix -revert-last` will revert the last rename.
 
-## Configure Nemo
+## Integrate
 
-To use `renametoix` as a file renamer instead of `bulky` on nemo tweak the following setting:
+RenameToIX can be integrated with Nemo, Nautilus and Thunar.
+On RenameToIX application, click on the Settings button, and then `Integrate` button.
 
-Menu Edit -> Preferences -> Behavior -> Bulk Rename
+- Nemo Bulk Rename: When you press F2 it will use **RenameToIX** instead of bulky.
+- Nemo Action: On context menu, it will include an item named **RenameToIX**.
+- Nautilus Script: On context menu Scripts, it will include an item named **RenameToIX**.
+- Thunar Action: On context menu, it will include an item named **RenameToIX**.
 
-## Configure Thunar
+## Support this Project
 
-Menu Edit -> Configure Custom Actions -> "+" sign -> Edit Action  
-Name: RenameToIX  
-Command: /usr/bin/renametoix %F  
+If you find this project useful, consider supporting it:
 
-RenameToIX will appear on the context menu.
+- Donate:  
+[![Donate via PayPal](https://www.paypalobjects.com/webstatic/en_US/i/btn/png/blue-rect-paypal-34px.png)](https://www.paypal.com/donate/?business=MCZDHYSK6TCKJ&no_recurring=0&item_name=Support+Open+Source&currency_code=EUR)
+
+- Visit the project [homepage](https://www.devtoix.com/en/projects/renametoix)
+- Give the project a ⭐ on [Github](https://github.com/a-bentofreire/renametoix)
+- Spread the word
+- Follow me:
+  - [Github](https://github.com/a-bentofreire)
+  - [LinkedIn](https://www.linkedin.com/in/abentofreire)
+  - [Twitter/X](https://x.com/devtoix)
 
 ## License
 
