@@ -30,7 +30,9 @@ macros_functions = {
     "lower": lambda m: m.lower(),
     "l": lambda m: m.lower(),
     "capitalize": lambda m: m.capitalize(),
-    "c": lambda m: m.capitalize()
+    "c": lambda m: m.capitalize(),
+    "title": lambda m: m.title(),
+    "t": lambda m: m.title()
 }
 
 arg_parser = argparse.ArgumentParser()

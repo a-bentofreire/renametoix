@@ -1,3 +1,10 @@
+renametoix (1.0.7) noble; urgency=low
+
+  * Fix Integrations dialog title
+  * Add title macro
+
+ -- Alexandre Bento Freire <dev@a-bentofreire.com>  Thu, 05 Sep 2024 10:41:06 +0000
+
 renametoix (1.0.6) noble; urgency=low
 
   * Add Function Macros
@@ -5,7 +12,7 @@ renametoix (1.0.6) noble; urgency=low
   * Minor bug fixes
   * Add Help button
 
- -- Alexandre Bento Freire <dev@a-bentofreire.com>  Mon, 02 Sep 2024 20:09:46 +0000
+ -- Alexandre Bento Freire <dev@a-bentofreire.com>  Thu, 05 Sep 2024 10:21:30 +0000
 
 
 renametoix (1.0.5) noble; urgency=low

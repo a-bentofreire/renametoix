@@ -44,12 +44,17 @@ RenameToIX uses `xdg-open` and `notify-send` external commands.
 - `%0{upper}` `%0{u}` - uppercase  (function)
 - `%0{lower}` `%0{l}` - lowercase (function)
 - `%0{capitalize}` `%0{c}` - capitalize (function)
+- `%0{title}` `%0{t}` - capitalize (function)
 
 ## Macro functions
 
 The macro functions can also be used with regular expressions to capture groups.
 
 ex:
+- Find: `.^.*$`
+- Replace: `%0{title}`
+- Filename: `my document.png` will become `My Document.png`
+
 - Find: `..(NEW).(design)`
 - Replace: `%1{l}-%2{u}`
 - Filename: `n-myNEW design.png` will become `n-new-DESIGN.png`
