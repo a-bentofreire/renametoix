@@ -6,7 +6,7 @@
     <property name="can-focus">False</property>
     <property name="type-hint">dialog</property>
     <property name="program-name">RenameToIX</property>
-    <property name="version">1.0.7</property>
+    <property name="version">1.0.9</property>
     <property name="copyright" translatable="yes">© 2024 Alexandre Bento Freire</property>
     <property name="website">https://www.devtoix.com/en/projects/renametoix</property>
     <property name="authors">Alexandre Bento Freire</property>
@@ -255,7 +255,7 @@
               <object class="GtkAccelLabel" id="find_label">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <property name="label" translatable="yes">_Find</property>
+                <property name="label" translatable="yes">Find</property>
                 <property name="use-underline">True</property>
                 <property name="accel-widget">find_entry</property>
               </object>
@@ -268,6 +268,7 @@
               <object class="GtkEntry" id="find_entry">
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
+                <property name="tooltip-text" translatable="yes">Text to Find</property>
                 <property name="hexpand">True</property>
               </object>
               <packing>
@@ -280,7 +281,7 @@
               <object class="GtkAccelLabel" id="replace_label">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <property name="label" translatable="yes">_Replace</property>
+                <property name="label" translatable="yes">Replace</property>
                 <property name="use-underline">True</property>
                 <property name="accel-widget">replace_entry</property>
               </object>
@@ -293,6 +294,7 @@
               <object class="GtkEntry" id="replace_entry">
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
+                <property name="tooltip-text" translatable="yes">Text to Replace</property>
               </object>
               <packing>
                 <property name="left-attach">1</property>
@@ -304,7 +306,7 @@
               <object class="GtkAccelLabel" id="start_index_label">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <property name="label" translatable="yes">_Start</property>
+                <property name="label" translatable="yes">Start</property>
                 <property name="use-underline">True</property>
                 <property name="accel-widget">start_index_label_spin</property>
               </object>
@@ -359,7 +361,7 @@
                 <property name="can-focus">False</property>
                 <child>
                   <object class="GtkCheckButton" id="reg_ex_button">
-                    <property name="label" translatable="yes">_Regular Expression</property>
+                    <property name="label" translatable="yes">Regular Expression</property>
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
                     <property name="receives-default">False</property>
@@ -375,7 +377,7 @@
                 </child>
                 <child>
                   <object class="GtkCheckButton" id="include_ext_button">
-                    <property name="label" translatable="yes">_Include Ext</property>
+                    <property name="label" translatable="yes">Include Ext</property>
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
                     <property name="receives-default">False</property>
@@ -391,7 +393,7 @@
                 </child>
                 <child>
                   <object class="GtkButton" id="macro_button">
-                    <property name="label" translatable="yes">_Macro</property>
+                    <property name="label" translatable="yes">Macro</property>
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
                     <property name="receives-default">True</property>

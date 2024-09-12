@@ -17,10 +17,20 @@ import stat
 import sys
 import time
 import yaml
+import gettext
+import locale
 
 import gi
 gi.require_version("Gtk", "3.0")  # noqa
 from gi.repository import Gtk,  Gdk, GLib, Gio
+
+APP = 'renametoix'
+LOCALE_DIR = "/usr/share/locale"
+locale.bindtextdomain(APP, LOCALE_DIR)
+gettext.bindtextdomain(APP, LOCALE_DIR)
+gettext.textdomain(APP)
+_ = gettext.gettext
+
 
 REVERT_RENAME_SH = "revert-rename.sh"
 
@@ -35,21 +45,24 @@ macros_functions = {
     "t": lambda m: m.title()
 }
 
+console_mode_text = _("Console Mode")
 arg_parser = argparse.ArgumentParser()
-arg_parser.add_argument("-console", action='store_true', default=False, help="Console mode")  # noqa
-arg_parser.add_argument("-start-index", type=int, default=1, help="Start index used with there is a %%0n macro")  # noqa
-arg_parser.add_argument("-reg-ex", action='store_true', default=False, help="Uses regular expressions on the find field")  # noqa
+arg_parser.add_argument("-console", action='store_true', default=False, help=console_mode_text)  # noqa
+arg_parser.add_argument("-start-index", type=int, default=1,
+                        help=_("Start index used with there is a %0n macro").replace("%", "%%")
+                        )  # noqa
+arg_parser.add_argument("-reg-ex", action='store_true', default=False, help=_("Uses regular expressions on the find field"))  # noqa
 arg_parser.add_argument("-include-ext", action='store_true', default=False,
-                        help="Renames including the file extension")
-arg_parser.add_argument("-find", default="", help="Text to Find")
-arg_parser.add_argument("-replace", default="", help="Text to Replace")
+                        help=_("Renames including the file extension"))
+arg_parser.add_argument("-find", default="", help=_("Text to Find"))
+arg_parser.add_argument("-replace", default="", help=_("Text to Replace"))
 arg_parser.add_argument("-allow-revert", action='store_true', default=False,
-                        help="Generates a revert script (console mode)")
+                        help="%s (%s)" % (_("Generates a revert script"), console_mode_text))
 arg_parser.add_argument("-test-mode", action='store_true', default=False,
-                        help="Outputs only the new result, doesn't rename (console mode)")
+                        help="%s (%s)" % (_("Outputs only the new result, doesn't rename"), console_mode_text))
 arg_parser.add_argument("-revert-last", action='store_true', default=False,
-                        help="Reverts last rename and exits")
-arg_parser.add_argument("files", nargs="*", help="Source files")
+                        help=_("Reverts last rename and exits"))
+arg_parser.add_argument("files", nargs="*", help=_("Files"))
 args = arg_parser.parse_args()
 
 
@@ -185,7 +198,7 @@ class ConsoleRename:
 
         self.add_source_files()
         if not self.files:
-            sys.stderr.write("No source files")
+            sys.stderr.write(_("No Files"))
             exit(1)
         self.generate_new_names(self.args.start_index, self.args.reg_ex, self.args.include_ext,
                                 self.args.find, self.args.replace)
@@ -194,7 +207,7 @@ class ConsoleRename:
             exit(1)
         self.console_apply_renames(self.args.allow_revert, self.args.test_mode)
         if self.rename_count:
-            print(f"{self.rename_count} files renamed")
+            print(f'%d files renamed' % self.rename_count)
 
     # Revert Files
 
@@ -232,7 +245,7 @@ class ConsoleRename:
             os.unlink(revert_script)
             return 0
         else:
-            sys.stderr.write(f"{revert_script} doesn't exists")
+            sys.stderr.write("%s doesn't exists" % revert_script)
             return 1
 
     def close_revert_script(self):
@@ -254,7 +267,7 @@ class ConsoleRename:
             self.revert_scripts_with_caption = []
             for script in sorted(os.listdir(self.cfg["revert-path"]), reverse=True):
                 if script.endswith(".sh"):
-                    caption = "Latest Revert" if script == REVERT_RENAME_SH else \
+                    caption = _("Latest Revert") if script == REVERT_RENAME_SH else \
                         re.sub(r"revert-rename-([0-9-]+)-(\d+)_(\d+)_(\d+)\.sh", r"\1 \2:\3:\4", script)
                     self.revert_scripts_with_caption.append([script, caption])
                     revert_list_store.append([caption])
@@ -348,6 +361,7 @@ class GUIRename(ConsoleRename):
         self.current_folder = None
 
         self.builder = Gtk.Builder()
+        self.builder.set_translation_domain(APP)
         self.builder.add_from_file(os.path.join(os.path.splitext(sys.argv[0])[0] + ".ui"))
         self.app_window = self.builder.get_object("app_window")
         self.find_entry = self.connect("find_entry",
@@ -369,12 +383,13 @@ class GUIRename(ConsoleRename):
         self.connect("settings_button", [[self.settings_button_clicked]])
         self.connect("revert_button", [[self.revert_dialog_clicked]])
         self.connect("add_files_button", [[self.add_files_button_clicked]])
-        self.connect("cancel_button", [[self.close_window]])
+        self.cancel_button = self.connect("cancel_button", [[self.close_window]])
+        self.cancel_button.set_label(_("Cancel")) # @TODO: Determine why isn't ui translating this button
         self.ok_button = self.connect("ok_button", [[self.ok_button_clicked]])
 
         self.files_list_store = self.builder.get_object("files_list_store")
         self.files_treeview = self.builder.get_object("files_treeview")
-        for i, column_title in enumerate(["Path", "Before", "After"]):
+        for i, column_title in enumerate([_("Path"), _("Before"), _("After")]):
             renderer = Gtk.CellRendererText()
             column = Gtk.TreeViewColumn(column_title, renderer, text=i)
             column.set_resizable(True)
@@ -420,7 +435,7 @@ class GUIRename(ConsoleRename):
 
     def add_files_button_clicked(self, width):
         dialog = Gtk.FileChooserDialog(
-            title="Add Files", parent=self.app_window, action=Gtk.FileChooserAction.OPEN,
+            title=_("Add Files"), parent=self.app_window, action=Gtk.FileChooserAction.OPEN,
             buttons=(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL, Gtk.STOCK_OPEN, Gtk.ResponseType.OK))
         if self.current_folder:
             dialog.set_current_folder(self.current_folder)
@@ -442,7 +457,7 @@ class GUIRename(ConsoleRename):
         path, _focus = self.revert_files_tree.get_cursor()
         if path:
             script_name, caption = self.revert_scripts_with_caption[path.get_indices()[0]]
-            if script_name and self.confirmation_dialog("Are you sure want to execute %s?" % caption):
+            if script_name and self.confirmation_dialog(_("Are you sure want to execute %s?") % caption):
                 self.exec_revert_script(script_name)
                 self.populate_revert_list_store(self.builder.get_object("revert_list_store"))
 
@@ -522,15 +537,15 @@ class GUIRename(ConsoleRename):
     def apply_renames(self):
         if self.allow_renames:
             self.console_apply_renames(self.cfg["allow-revert"])
-            self.notify_msg(f"{self.rename_count} files renamed")
+            self.notify_msg(_("%d files renamed") % self.rename_count)
 
     def close_window(self, widget=None):
         Gtk.main_quit()
 
     def confirmation_dialog(self, message):
         dialog = Gtk.MessageDialog(message_format=message)
-        dialog.add_button("_Yes", Gtk.ResponseType.YES)
-        dialog.add_button("_No", Gtk.ResponseType.NO)
+        dialog.add_button("_" + _("Yes"), Gtk.ResponseType.YES)
+        dialog.add_button("_" + _("No"), Gtk.ResponseType.NO)
         return_value = dialog.run()
         dialog.destroy()
         return return_value == Gtk.ResponseType.YES

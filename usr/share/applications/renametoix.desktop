@@ -1,6 +1,6 @@
 [Desktop Entry]
 Name=RenameToIX
-Comment=Rename files and directories
+Description=Renames files and directories
 Exec=renametoix
 Icon=renametoix
 Terminal=false
@@ -9,3 +9,4 @@ Encoding=UTF-8
 Categories=GTK;Utility
 Keywords=rename;
 StartupNotify=false
+Description[pt]=Renomeia ficheiros e diretórios

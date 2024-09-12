@@ -1,0 +1,154 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Default Translation\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-08-31 12:00+0000\n"
+"PO-Revision-Date: 2024-08-31 12:00+0000\n"
+"Last-Translator: Alexandre Bento Freire <devtoix@a-bentofreire.com>\n"
+"Language-Team: English\n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "%d files renamed"
+msgstr "%d files renamed"
+
+msgid "%s doesn't exists"
+msgstr "%s doesn't exists"
+
+msgid "About"
+msgstr "About"
+
+msgid "Add Files"
+msgstr "Add Files"
+
+msgid "Adds Macro to Replace field"
+msgstr "Adds Macro to Replace field"
+
+msgid "After"
+msgstr "After"
+
+msgid "Are you sure want to execute %s?"
+msgstr "Are you sure want to execute %s?"
+
+msgid "Before"
+msgstr "Before"
+
+msgid "Cancel"
+msgstr "Cancel"
+
+msgid "Console Mode"
+msgstr "Console Mode"
+
+msgid "Execute"
+msgstr "Execute"
+
+msgid "File Renamer"
+msgstr "File Renamer"
+
+msgid "Files"
+msgstr "Files"
+
+msgid "Find"
+msgstr "Find"
+
+msgid "Generates a revert script"
+msgstr "Generates a revert script"
+
+msgid "Help"
+msgstr "Help"
+
+msgid "Include Ext"
+msgstr "Include Ext"
+
+msgid "Integrate"
+msgstr "Integrate"
+
+msgid "Integrations"
+msgstr "Integrations"
+
+msgid "Latest Revert"
+msgstr "Latest Revert"
+
+msgid "Macro"
+msgstr "Macro"
+
+msgid "Macros"
+msgstr "Macros"
+
+msgid "Nautilus Script"
+msgstr "Nautilus Script"
+
+msgid "Nemo Action"
+msgstr "Nemo Action"
+
+msgid "Nemo Integrated Rename"
+msgstr "Nemo Integrated Rename"
+
+msgid "No"
+msgstr "No"
+
+msgid "No Files"
+msgstr "No Files"
+
+msgid "Notification"
+msgstr "Notification"
+
+msgid "Open Folder"
+msgstr "Open Folder"
+
+msgid "Outputs only the new result, doesn't rename"
+msgstr "Outputs only the new result, doesn't rename"
+
+msgid "Path"
+msgstr "Path"
+
+msgid "Regular Expression"
+msgstr "Regular Expression"
+
+# app-description
+msgid "Renames files and directories"
+msgstr "Renames files and directories"
+
+msgid "Renames including the file extension"
+msgstr "Renames including the file extension"
+
+msgid "Replace"
+msgstr "Replace"
+
+msgid "Revert"
+msgstr "Revert"
+
+msgid "Revert Path"
+msgstr "Revert Path"
+
+msgid "Reverts last rename and exits"
+msgstr "Reverts last rename and exits"
+
+msgid "Reverts previous renames"
+msgstr "Reverts previous renames"
+
+msgid "Settings"
+msgstr "Settings"
+
+msgid "Start"
+msgstr "Start"
+
+msgid "Start index used with there is a %0n macro"
+msgstr "Start index used with there is a %0n macro"
+
+msgid "Text to Find"
+msgstr "Text to Find"
+
+msgid "Text to Replace"
+msgstr "Text to Replace"
+
+msgid "Thunar Action"
+msgstr "Thunar Action"
+
+msgid "Uses regular expressions on the find field"
+msgstr "Uses regular expressions on the find field"
+
+msgid "Yes"
+msgstr "Yes"
