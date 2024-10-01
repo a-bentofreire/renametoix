@@ -12,12 +12,13 @@ If you find this project useful, please, read the [Support this Project](#suppor
 
 - GUI and Console mode.
 - Counter, file datetime, and extension Macros.
-- Function Macros with regex group capture: Lower, Upper, Capitalize.
+- Function Macros with regex group capture: Lower, Upper, Capitalize and Title.
 - Start index for counter Macro.
 - Configurable list of macros.
 - Single click macro.
 - Revert previous renames (first activate on Settings dialog).
 - Send notification after renames (first activate on Settings dialog).
+- Limited support for [mtp devices](#mtp-devices) (Smartphones, Cameras, etc...).
 
 ## Installation
 
@@ -97,6 +98,18 @@ On RenameToIX application, click on the Settings button, and then `Integrate` bu
 - Nemo Action: On context menu, it will include an item named **RenameToIX**.
 - Nautilus Script: On context menu Scripts, it will include an item named **RenameToIX**.
 - Thunar Action: On context menu, it will include an item named **RenameToIX**.
+
+## Languages
+
+- English
+- Portuguese
+
+## Mtp Devices
+
+RenameToIX can rename files on mtp devices with the following limitations:
+- It doesn't support revert.
+- The file is copied and the deleted the original, this is a slow operation and doesn't preserves the timestamp.
+- When modifying the Find Replace fields, it's checking if the new filename exists on the destination. This is a slow operation.
 
 ## Support this Project
 
