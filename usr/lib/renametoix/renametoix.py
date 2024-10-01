@@ -22,6 +22,7 @@ import locale
 
 import gi
 gi.require_version("Gtk", "3.0")  # noqa
+gi.require_version('Gio', '2.0')  # noqa
 from gi.repository import Gtk,  Gdk, GLib, Gio
 
 APP = 'renametoix'
@@ -126,8 +127,9 @@ class ConsoleRename:
 
         try:
             for index, filename in enumerate(self.files):
-                basename = os.path.basename(filename)
-                dirname = os.path.dirname(filename)
+                g_file = Gio.File.new_for_path(filename)
+                basename = g_file.get_basename()
+                dirname = g_file.get_parent().get_path() if g_file.has_parent() else ""
                 from_text, ext = os.path.splitext(basename) if not include_ext else (basename, None)
                 new_text = re.sub(before, after, from_text, flags=re.A) if is_reg_ex \
                     else from_text.replace(before, after)
@@ -146,7 +148,7 @@ class ConsoleRename:
                     if new_text:
                         self.renames.append([filename, new_filename])
                         self.allow_renames = self.allow_renames and new_filename not in new_filenames \
-                            and not os.path.exists(new_filename)
+                            and not Gio.File.new_for_path(new_filename).query_exists()
                         if new_filename not in new_filenames:
                             new_filenames.add(new_filename)
                     else:
@@ -156,20 +158,19 @@ class ConsoleRename:
         except:
             self.allow_renames = False
 
-    def add_files(self, filenames):
-        cur_dir = os.path.realpath(os.curdir)
-        for filename in filenames:
-            if os.path.exists(filename) and filename not in self.files:
-                if os.path.dirname(filename) == "":
-                    filename = os.path.join(cur_dir, filename)
-                basename = os.path.basename(filename)
-                self.files_list_store.append([os.path.dirname(filename), basename, basename])
+    def add_files(self, uris):
+        for uri in uris:
+            g_file = Gio.File.new_for_uri(uri) if "://" in uri else Gio.File.new_for_path(uri)
+            filename = g_file.get_path()
+            if g_file.query_exists() and filename not in self.files:
+                basename = g_file.get_basename()
+                self.files_list_store.append(
+                    [g_file.get_parent().get_path() if g_file.has_parent() else "", basename, basename])
                 self.files.append(filename)
         self.update_renames()
 
     def add_source_files(self):
-        self.add_files([uri if not uri.startswith("file://") else
-                        GLib.filename_from_uri(uri)[0] for uri in self.args.files])
+        self.add_files(self.args.files)
 
     def update_renames(self):
         # to override
@@ -180,15 +181,35 @@ class ConsoleRename:
             try:
                 for rename in self.renames:
                     src_file, dst_file = rename
-                    if not os.path.exists(dst_file):
+                    g_source = Gio.File.new_for_path(src_file)
+                    g_dest = Gio.File.new_for_path(dst_file)
+                    is_native = g_source.is_native()
+                    if not g_dest.query_exists():
                         if not test_mode:
-                            os.rename(src_file, dst_file)
-                            if allow_revert:
+                            if is_native:
+                                g_source.move(g_dest, Gio.FileCopyFlags.NONE, None, None, None, None)
+                            else:
+                                try:
+                                    src_stream = g_source.read(None)
+                                    dest_stream = g_dest.replace(None, False, Gio.FileCreateFlags.NONE, None)
+                                    buffer_size = 8192
+                                    while True:
+                                        data = src_stream.read_bytes(buffer_size, None)
+                                        if data.get_size() == 0:
+                                            break
+                                        dest_stream.write_bytes(data, None)
+                                    src_stream.close(None)
+                                    dest_stream.close(None)
+                                    g_source.delete(None)
+                                except GLib.Error as e:
+                                    print(f"Error during rename operation: {e}")
+
+                            if allow_revert and is_native:
                                 self.add_revert(src_file, dst_file,
                                                 os.path.basename(src_file), os.path.basename(dst_file))
                             self.rename_count += 1
                         else:
-                            print(f"{src_file} -> {os.path.basename(dst_file)}")
+                            print(f"{src_file} -> {Gio.File.new_for_path(dst_file).get_basename}")
             finally:
                 self.close_revert_script()
 
@@ -384,7 +405,7 @@ class GUIRename(ConsoleRename):
         self.connect("revert_button", [[self.revert_dialog_clicked]])
         self.connect("add_files_button", [[self.add_files_button_clicked]])
         self.cancel_button = self.connect("cancel_button", [[self.close_window]])
-        self.cancel_button.set_label(_("Cancel")) # @TODO: Determine why isn't ui translating this button
+        self.cancel_button.set_label(_("Cancel"))  # @TODO: Determine why isn't ui translating this button
         self.ok_button = self.connect("ok_button", [[self.ok_button_clicked]])
 
         self.files_list_store = self.builder.get_object("files_list_store")

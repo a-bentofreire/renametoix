@@ -1,3 +1,11 @@
+renametoix (1.0.10) noble; urgency=low
+
+  * Migrate file operations to Gio library
+  * Add support for mtp devices
+
+ -- Alexandre Bento Freire <dev@a-bentofreire.com>  Mon, 30 Sep 2024 21:31:40 +0000
+
+
 renametoix (1.0.9) noble; urgency=low
 
   * Stable update 

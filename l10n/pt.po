@@ -60,7 +60,7 @@ msgid "Help"
 msgstr "Ajuda"
 
 msgid "Include Ext"
-msgstr "Inclue Ext"
+msgstr "Incluir Ext"
 
 msgid "Integrate"
 msgstr "Integrar"
