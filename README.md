@@ -11,13 +11,14 @@ If you find this project useful, please, read the [Support this Project](#suppor
 ## Features
 
 - GUI and Console mode.
+- **Single click macro**.
 - Counter, file datetime, and extension Macros.
 - Function Macros with regex group capture: Lower, Upper, Capitalize and Title.
 - Start index for counter Macro.
 - Configurable list of macros.
-- Single click macro.
 - Revert previous renames (first activate on Settings dialog).
 - Send notification after renames (first activate on Settings dialog).
+- Integration with Nemo, Nautilus and Thunar File Manager.
 - Limited support for [mtp devices](#mtp-devices) (Smartphones, Cameras, etc...).
 
 ## Installation
@@ -116,10 +117,14 @@ RenameToIX can rename files on mtp devices with the following limitations:
 If you find this project useful, consider supporting it:
 
 - Donate:  
+
 [![Donate via PayPal](https://www.paypalobjects.com/webstatic/en_US/i/btn/png/blue-rect-paypal-34px.png)](https://www.paypal.com/donate/?business=MCZDHYSK6TCKJ&no_recurring=0&item_name=Support+Open+Source&currency_code=EUR)
+
+[![Buy me a Coffee](https://www.devtoix.com/assets/buymeacoffee-small.png)](https://buymeacoffee.com/abentofreire)
 
 - Visit the project [homepage](https://www.devtoix.com/en/projects/renametoix)
 - Give the project a ⭐ on [Github](https://github.com/a-bentofreire/renametoix)
+- Translate into your language
 - Spread the word
 - Follow me:
   - [Github](https://github.com/a-bentofreire)
