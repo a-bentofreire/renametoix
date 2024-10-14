@@ -1,48 +1,50 @@
-en	pt
-%d files renamed	%d ficheiros renomeados
-%s doesn't exists	%s não existe
-About	Sobre
-Add Files	Adicionar ficheiros
-Adds Macro to Replace field	Adiciona Macro no campo Substituir
-After	Depois
-Are you sure want to execute %s?	Tem a certeza que quer executar %s?
-Before	Antes
-Cancel	Cancelar
-Console Mode	Modo de Consola
-Execute	Executar
-File Renamer	Renomeador de ficheiros
-Files	Ficheiros
-Find	Procurar
-Generates a revert script	Gera um script de reversão
-Help	Ajuda
-Include Ext	Incluir Ext
-Integrate	Integrar
-Integrations	Integrações
-Latest Revert	Reversão mais recente
-Macro	Macro
-Macros	Macros
-Nautilus Script	Nautilus Script
-Nemo Action	Ação Nemo
-Nemo Integrated Rename	Renomeação Nemo Integrada
-No	Não
-No Files	Sem ficheiros
-Notification	Notificação
-Open Folder	Abrir Pasta
-Outputs only the new result, doesn't rename	Saída apenas o novo resultado, não renomea
-Path	Trilha
-Regular Expression	Expressão Regular
-Renames files and directories	Renomeia ficheiros e diretórios
-Renames including the file extension	Renomeia incluindo a extensão do ficheiro
-Replace	Substituir
-Revert	Reverter
-Revert Path	Trilha para Reverter
-Reverts last rename and exits	Reverte o último renomeamento e termina
-Reverts previous renames	Reverte renomeações anteriores
-Settings	Configurações
-Start	Iniciar
-Start index used with there is a %0n macro	Índice inicial utilizado com uma macro %0n
-Text to Find	Texto para encontrar
-Text to Replace	Texto para substituir
-Thunar Action	Ação Thunar
-Uses regular expressions on the find field	Utiliza expressões regulares no campo de Procurar
-Yes	Sim
+en	pt	es	de
+%d files renamed	%d ficheiros renomeados	%d archivos renombrados	%d Dateien umbenannt
+%s doesn't exists	%s não existe	%s no existe	%s existiert nicht
+About	Sobre	Acerca de	Info
+Add Files	Adicionar ficheiros	Agregar archivos	Dateien hinzufügen
+Adds Macro to Replace field	Adiciona Macro no campo Substituir	Agregar macro en el campo Reemplazar	Fügt Makro zum Ersetzen-Feld hinzu
+After	Depois	Después	Nachher
+Are you sure want to execute %s?	Tem a certeza que quer executar %s?	¿Estás seguro de que quieres ejecutar %s?	Möchten Sie %s wirklich ausführen?
+Before	Antes	Antes	Vorher
+Cancel	Cancelar	Cancelar	Abbrechen
+Close	Fechar	Cerrar	Schließen
+Console Mode	Modo de Consola	Modo consola	Konsolenmodus
+Execute	Executar	Ejecutar	Ausführen
+File Renamer	Renomeador de ficheiros	Renombrador de archivos	Dateiumbenenner
+Files	Ficheiros	Archivos	Dateien
+Find	Procurar	Buscar	Suchen
+Generates a revert script	Gera um script de reversão	Genera un script de reversión	Generiert ein Rückgängig-Skript
+Help	Ajuda	Ayuda	Hilfe
+Include Ext	Incluir Ext	Incluir extensión	Erw einschließen
+Integrate	Integrar	Integrar	Integrieren
+Integrations	Integrações	Integraciones	Integrationen
+Latest Revert	Reversão mais recente	Última reversión	Letzte Rückgängig-Funktion
+Macro	Macro	Macro	Makro
+Macros	Macros	Macros	Makros
+Nautilus Script	Nautilus Script	Guión Nautilus	Nautilus-Skript
+Nemo Action	Ação Nemo	Acción Nemo	Nemo-Aktion
+Nemo Integrated Rename	Renomeação Nemo Integrada	Cambio de nombre de Nemo integrado	Integriertes Umbenennen in Nemo
+No	Não	No	Nein
+No Files	Sem ficheiros	Sin archivos	Keine Dateien
+Notification	Notificação	Notificación	Benachrichtigung
+Open Folder	Abrir Pasta	Abrir carpeta	Ordner öffnen
+Open	Abrir	Abrir	Ordner
+Outputs only the new result, doesn't rename	Saída apenas o novo resultado, não renomea	Genera solo el nuevo resultado, no cambies el nombre	Gibt nur das neue Ergebnis aus, benennt nicht um
+Path	Trilha	Camino	Pfad
+Regular Expression	Expressão Regular	Expresión regular	Regulärer Ausdruck
+Renames files and directories	Renomeia ficheiros e diretórios	Cambiar el nombre de archivos y directorios	Benennt Dateien und Verzeichnisse um
+Renames including the file extension	Renomeia incluindo a extensão do ficheiro	Cambiar el nombre incluyendo la extensión del archivo	Benennt einschließlich der Dateierweiterung um
+Replace	Substituir	Reemplazar	Ersetzen
+Revert	Reverter	Contrarrestar	Rückgängig
+Revert Path	Trilha para Reverter	Camino para revertir	Pfad rückgängig machen
+Reverts last rename and exits	Reverte o último renomeamento e termina	Revertir el último cambio de nombre y finalizar	Macht letzte Umbenennung rückgängig und beendet
+Reverts previous renames	Reverte renomeações anteriores	Revierte cambios de nombre anteriores	Macht vorherige Umbenennungen rückgängig
+Settings	Configurações	Ajustes	Einstellungen
+Start	Iniciar	Comenzar	Start
+Start index used with there is a %0n macro	Índice inicial utilizado com uma macro %0n	Índice inicial utilizado con una macro %0n	Startindex wird verwendet, wenn ein %0n-Makro vorhanden ist
+Text to Find	Texto para encontrar	Texto para encontrar	Zu suchender Text
+Text to Replace	Texto para substituir	Texto a reemplazar	Zu ersetzender Text
+Thunar Action	Ação Thunar	Acción Thunar	Thunar-Aktion
+Uses regular expressions on the find field	Utiliza expressões regulares no campo de Procurar	Utilice expresiones regulares en el campo de búsqueda	Verwendet reguläre Ausdrücke im Suchfeld
+Yes	Sim	Sí	Ja

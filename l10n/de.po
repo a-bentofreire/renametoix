@@ -12,143 +12,143 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 msgid "%d files renamed"
-msgstr "%d ficheiros renomeados"
+msgstr "%d Dateien umbenannt"
 
 msgid "%s doesn't exists"
-msgstr "%s não existe"
+msgstr "%s existiert nicht"
 
 msgid "About"
-msgstr "Sobre"
+msgstr "Info"
 
 msgid "Add Files"
-msgstr "Adicionar ficheiros"
+msgstr "Dateien hinzufügen"
 
 msgid "Adds Macro to Replace field"
-msgstr "Adiciona Macro no campo Substituir"
+msgstr "Fügt Makro zum Ersetzen-Feld hinzu"
 
 msgid "After"
-msgstr "Depois"
+msgstr "Nachher"
 
 msgid "Are you sure want to execute %s?"
-msgstr "Tem a certeza que quer executar %s?"
+msgstr "Möchten Sie %s wirklich ausführen?"
 
 msgid "Before"
-msgstr "Antes"
+msgstr "Vorher"
 
 msgid "Cancel"
-msgstr "Cancelar"
+msgstr "Abbrechen"
 
 msgid "Console Mode"
-msgstr "Modo de Consola"
+msgstr "Konsolenmodus"
 
 msgid "Execute"
-msgstr "Executar"
+msgstr "Ausführen"
 
 msgid "File Renamer"
-msgstr "Renomeador de ficheiros"
+msgstr "Dateiumbenenner"
 
 msgid "Files"
-msgstr "Ficheiros"
+msgstr "Dateien"
 
 msgid "Find"
-msgstr "Procurar"
+msgstr "Suchen"
 
 msgid "Generates a revert script"
-msgstr "Gera um script de reversão"
+msgstr "Generiert ein Rückgängig-Skript"
 
 msgid "Help"
-msgstr "Ajuda"
+msgstr "Hilfe"
 
 msgid "Include Ext"
-msgstr "Incluir Ext"
+msgstr "Erw einschließen"
 
 msgid "Integrate"
-msgstr "Integrar"
+msgstr "Integrieren"
 
 msgid "Integrations"
-msgstr "Integrações"
+msgstr "Integrationen"
 
 msgid "Latest Revert"
-msgstr "Reversão mais recente"
+msgstr "Letzte Rückgängig-Funktion"
 
 msgid "Macro"
-msgstr "Macro"
+msgstr "Makro"
 
 msgid "Macros"
-msgstr "Macros"
+msgstr "Makros"
 
 msgid "Nautilus Script"
-msgstr "Nautilus Script"
+msgstr "Nautilus-Skript"
 
 msgid "Nemo Action"
-msgstr "Ação Nemo"
+msgstr "Nemo-Aktion"
 
 msgid "Nemo Integrated Rename"
-msgstr "Renomeação Nemo Integrada"
+msgstr "Integriertes Umbenennen in Nemo"
 
 msgid "No"
-msgstr "Não"
+msgstr "Nein"
 
 msgid "No Files"
-msgstr "Sem ficheiros"
+msgstr "Keine Dateien"
 
 msgid "Notification"
-msgstr "Notificação"
+msgstr "Benachrichtigung"
 
 msgid "Open Folder"
-msgstr "Abrir Pasta"
+msgstr "Ordner öffnen"
 
 msgid "Outputs only the new result, doesn't rename"
-msgstr "Saída apenas o novo resultado, não renomea"
+msgstr "Gibt nur das neue Ergebnis aus, benennt nicht um"
 
 msgid "Path"
-msgstr "Trilha"
+msgstr "Pfad"
 
 msgid "Regular Expression"
-msgstr "Expressão Regular"
+msgstr "Regulärer Ausdruck"
 
 # app-description
 msgid "Renames files and directories"
-msgstr "Renomeia ficheiros e diretórios"
+msgstr "Benennt Dateien und Verzeichnisse um"
 
 msgid "Renames including the file extension"
-msgstr "Renomeia incluindo a extensão do ficheiro"
+msgstr "Benennt einschließlich der Dateierweiterung um"
 
 msgid "Replace"
-msgstr "Substituir"
+msgstr "Ersetzen"
 
 msgid "Revert"
-msgstr "Reverter"
+msgstr "Rückgängig"
 
 msgid "Revert Path"
-msgstr "Trilha para Reverter"
+msgstr "Pfad rückgängig machen"
 
 msgid "Reverts last rename and exits"
-msgstr "Reverte o último renomeamento e termina"
+msgstr "Macht letzte Umbenennung rückgängig und beendet"
 
 msgid "Reverts previous renames"
-msgstr "Reverte renomeações anteriores"
+msgstr "Macht vorherige Umbenennungen rückgängig"
 
 msgid "Settings"
-msgstr "Configurações"
+msgstr "Einstellungen"
 
 msgid "Start"
-msgstr "Iniciar"
+msgstr "Start"
 
 msgid "Start index used with there is a %0n macro"
-msgstr "Índice inicial utilizado com uma macro %0n"
+msgstr "Startindex wird verwendet, wenn ein %0n-Makro vorhanden ist"
 
 msgid "Text to Find"
-msgstr "Texto para encontrar"
+msgstr "Zu suchender Text"
 
 msgid "Text to Replace"
-msgstr "Texto para substituir"
+msgstr "Zu ersetzender Text"
 
 msgid "Thunar Action"
-msgstr "Ação Thunar"
+msgstr "Thunar-Aktion"
 
 msgid "Uses regular expressions on the find field"
-msgstr "Utiliza expressões regulares no campo de Procurar"
+msgstr "Verwendet reguläre Ausdrücke im Suchfeld"
 
 msgid "Yes"
-msgstr "Sim"
+msgstr "Ja"

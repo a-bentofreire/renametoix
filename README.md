@@ -65,7 +65,7 @@ ex:
 
 To activate on console mode, use `--console` on command line:
 
-```
+```plaintext
 usage: renametoix [-h] [-console] [-start-index START_INDEX] [-reg-ex] [-include-ext] [-find FIND] [-replace REPLACE] [-allow-revert] [-test-mode] [-revert-last] [files ...]
 
 positional arguments:
@@ -104,6 +104,8 @@ On RenameToIX application, click on the Settings button, and then `Integrate` bu
 
 - English
 - Portuguese
+- Spanish
+- German
 
 ## Mtp Devices
 
@@ -111,6 +113,13 @@ RenameToIX can rename files on mtp devices with the following limitations:
 - It doesn't support revert.
 - The file is copied and the deleted the original, this is a slow operation and doesn't preserves the timestamp.
 - When modifying the Find Replace fields, it's checking if the new filename exists on the destination. This is a slow operation.
+
+## Translations
+
+To improve translations:
+- Clone the project from [Github](https://github.com/a-bentofreire).
+- Update the translation on `tools/l10n.po`.
+- Run `convert-l10n.sh`.
 
 ## Support this Project
 
@@ -124,7 +133,7 @@ If you find this project useful, consider supporting it:
 
 - Visit the project [homepage](https://www.devtoix.com/en/projects/renametoix)
 - Give the project a ⭐ on [Github](https://github.com/a-bentofreire/renametoix)
-- Translate into your language
+- [Translate into your language](#translations)
 - Spread the word
 - Follow me:
   - [Github](https://github.com/a-bentofreire)

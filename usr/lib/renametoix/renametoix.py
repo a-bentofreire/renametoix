@@ -420,14 +420,14 @@ class GUIRename(ConsoleRename):
             self.files_treeview.append_column(column)
 
         self.settings_dialog = self.builder.get_object("settings_dialog")
-        self.settings_dialog.add_buttons(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL, Gtk.STOCK_OK, Gtk.ResponseType.OK)
+        self.settings_dialog.add_buttons(_("Cancel"), Gtk.ResponseType.CANCEL, Gtk.STOCK_OK, Gtk.ResponseType.OK)
         self.connect("integrate_button", [[self.integrate_clicked]])
 
         self.integrate_dialog = self.builder.get_object("integrate_dialog")
-        self.integrate_dialog.add_buttons(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL, Gtk.STOCK_OK, Gtk.ResponseType.OK)
+        self.integrate_dialog.add_buttons(_("Cancel"), Gtk.ResponseType.CANCEL, Gtk.STOCK_OK, Gtk.ResponseType.OK)
 
         self.revert_dialog = self.builder.get_object("revert_dialog")
-        self.revert_dialog.add_buttons(Gtk.STOCK_CLOSE, Gtk.ResponseType.CLOSE)
+        self.revert_dialog.add_buttons(_("Close"), Gtk.ResponseType.CLOSE)
         self.revert_files_tree = self.builder.get_object("revert_files_tree")
         self.revert_files_tree.append_column(Gtk.TreeViewColumn("", Gtk.CellRendererText(), text=0))
         self.connect("execute_revert_button", [[self.execute_revert_button_clicked]])
@@ -457,7 +457,7 @@ class GUIRename(ConsoleRename):
     def add_files_button_clicked(self, width):
         dialog = Gtk.FileChooserDialog(
             title=_("Add Files"), parent=self.app_window, action=Gtk.FileChooserAction.OPEN,
-            buttons=(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL, Gtk.STOCK_OPEN, Gtk.ResponseType.OK))
+            buttons=(_("Cancel"), Gtk.ResponseType.CANCEL, _("Open"), Gtk.ResponseType.OK))
         if self.current_folder:
             dialog.set_current_folder(self.current_folder)
         dialog.set_select_multiple(True)

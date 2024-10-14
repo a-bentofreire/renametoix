@@ -3,9 +3,9 @@ import sys
 import csv
 import re
 import os
-import json
+import shutil
 
-langs = ['pt']
+langs = ['pt', 'es', 'de']
 
 
 def main():
@@ -28,6 +28,7 @@ def main():
                 translation = row[lang].rstrip()
                 translation = translation if translation != '' else row['en']
                 translations[key] = translation
+            map_f.seek(0)
 
             def po_replace(match):
                 msgid = match.group(1)
@@ -35,6 +36,8 @@ def main():
                     if msgid in translations else match.group(0)
 
             messages_file = os.path.join(messages_path, f"{lang}.po")
+            if not os.path.exists(messages_file):
+                shutil.copy(os.path.join(messages_path, "en.po"), messages_file)
             with open(messages_file, 'r+', encoding='utf-8') as f:
                 lines = f.read()
                 f.seek(0)
@@ -47,10 +50,13 @@ def main():
             with open(desktop_file, 'r+', encoding='utf-8') as f:
                 lines = f.read()
                 f.seek(0)
-                matches = re.search(r"\nDescription=(.*)\n", lines)
-                desc = translations[matches.group(1)]
-                lines = re.sub(fr'Description\[{lang}\]=.*\n', "", lines)
-                lines += f'Description[{lang}]={desc}\n'
+                matches = re.search(r"\nDescription=(.*)\s*\n", lines)
+                desc = translations.get(matches.group(1))
+                if desc:
+                    lines = re.sub(fr'Description\[{lang}\]=.*\n', "", lines)
+                    lines += f'Description[{lang}]={desc}\n'
+                else:
+                    sys.stderr.write(f"ERROR: Missing translation for '{matches.group(1)}' used on {desktop_file}\n")
                 f.write(lines)
                 f.truncate()
                 f.close()

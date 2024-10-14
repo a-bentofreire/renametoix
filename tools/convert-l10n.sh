@@ -11,4 +11,4 @@
 SCRIPT_PATH="$(dirname $(realpath "$0"))"
 python $SCRIPT_PATH/convert-l10n.py || exit 1
 cd "$SCRIPT_PATH/../l10n"
-find . -iname "*.po" -exec bash -c 'FILE="{}"; echo Compile $FILE; msgfmt -o ../usr/share/locale/"${FILE%.*}/LC_MESSAGES/renametoix.mo" "$FILE";' \;
+find . -iname "*.po" -exec bash -c 'FILE="{}"; MSG_PATH=../usr/share/locale/"${FILE%.*}"/LC_MESSAGES; mkdir -p "$MSG_PATH"; echo Compile $FILE; msgfmt -o "$MSG_PATH/renametoix.mo" "$FILE";' \;
