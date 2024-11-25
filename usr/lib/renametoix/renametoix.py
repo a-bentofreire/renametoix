@@ -83,6 +83,7 @@ class ConsoleRename:
                 "%0n", "%00n", "%000n", "%Y-%m-%d", "%Y-%m-%d-%H_%M_%S", "%Y-%m-%d %H_%M_%S", "%I",
                 "%0{upper}", "%0{lower}", "%0{capitalize}",
                 "%1{upper}", "%1{lower}", "%1{capitalize}",
+                "%:{m[0]}"
             ]
         }
         self.cfg_name = os.path.join(GLib.get_user_config_dir(), 'renametoix', 'renametoix.yaml')
@@ -106,10 +107,17 @@ class ConsoleRename:
         text = groups[group_nr]
         func = macros_functions.get(macro_name)
         return func(text) if func else text
+    
+    def run_python_script(self, script, groups):
+        try:
+            return eval(f"lambda m: {script}")(groups)
+        except:
+            return groups(0)
 
     def apply_macros(self, text, start_index, filename, groups):
         text = re.sub(r"%(\d*)n", lambda m: "%0*d" % (len(m.group(1)) + 1, start_index), text)
         text = re.sub(r"%(\d)\{([a-z]+)\}", lambda m: self.macro_functions(int(m.group(1)), m.group(2), groups), text)
+        text = re.sub(r"%:\{([^}]+)\}", lambda m: self.run_python_script(m.group(1), groups), text)
         stamp_parts = time.strftime("%Y_%m_%d_%H_%M_%S", time.localtime(os.path.getmtime(filename))).split("_")
         for index, macro_name in enumerate("YmdHMS"):
             text = text.replace(f"%{macro_name}", stamp_parts[index])
@@ -134,7 +142,7 @@ class ConsoleRename:
                 new_text = re.sub(before, after, from_text, flags=re.A) if is_reg_ex \
                     else from_text.replace(before, after)
                 if new_text != from_text:
-                    if re.search(r"%[0-9A-Za-z]", new_text):
+                    if re.search(r"%[0-9A-Za-z:]", new_text):
                         groups = [from_text]
                         if is_reg_ex:
                             matches = re.search(before, from_text, flags=re.A)

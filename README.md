@@ -1,8 +1,14 @@
 # Description
 
-[RenameToIX](https://www.devtoix.com/en/projects/renametoix) is a Gtk3 File Renamer designed to be an alternative to [Linux Mint](https://www.linuxmint.com/) bulky as file renamer for Nemo, Nautilus and Thunar File Managers.
+[RenameToIX](https://www.devtoix.com/en/projects/renametoix) is a visual Linux file renamer built with Gtk, designed to be an alternative to [Linux Mint](https://www.linuxmint.com/) bulky as file renamer for Nemo, Nautilus and Thunar File Managers.
 
-![Image](https://www.devtoix.com/files/projects/renametoix/example-macro.gif)
+Simple macro example:
+
+![Image](https://cdn.jsdelivr.net/gh/a-bentofreire/a-bentofreire/media/renametoix/RenameToIX-Example-Macro.gif)
+
+Python lambda expression example:
+
+![Image](https://cdn.jsdelivr.net/gh/a-bentofreire/a-bentofreire/media/renametoix/RenameToIX-Python-Expressions.gif)
 
 Read section [Integrate](#integrate) on now to integrate with Nemo, Nautilus and Thunar.
 
@@ -13,7 +19,8 @@ If you find this project useful, please, read the [Support this Project](#suppor
 - GUI and Console mode.
 - **Single click macro**.
 - Counter, file datetime, and extension Macros.
-- Function Macros with regex group capture: Lower, Upper, Capitalize and Title.
+- Function Macros with regex group capture: `lower`, `upper`, `capitalize` and `title`.
+- Evaluates Python lambda expressions a macro.
 - Start index for counter Macro.
 - Configurable list of macros.
 - Revert previous renames (first activate on Settings dialog).
@@ -47,6 +54,7 @@ RenameToIX uses `xdg-open` and `notify-send` external commands.
 - `%0{lower}` `%0{l}` - lowercase (function)
 - `%0{capitalize}` `%0{c}` - capitalize (function)
 - `%0{title}` `%0{t}` - capitalize (function)
+- `%:{expr}` - evaluates [python lambda expressions](#python-lambda-expressions)
 
 ## Macro functions
 
@@ -60,6 +68,23 @@ ex:
 - Find: `..(NEW).(design)`
 - Replace: `%1{l}-%2{u}`
 - Filename: `n-myNEW design.png` will become `n-new-DESIGN.png`
+
+## Python Lambda Expressions
+
+The `%:{expr}` will internally evaluate a lambda expression: `eval(f"lambda m: {expr}")(groups)`
+
+where groups are the captured groups from a regular expression.
+
+ex:
+- Find: `.^(.*)-(.*)$`
+- Replace: `%:{m[2] - m[1]}`
+- Filename: `code-actions.py` will become `Actions - Code.py`
+
+### Features and Limitations
+
+- First, enable Regular Expression mode to capture groups.
+- The script can't contain a closed curly bracket `}`.
+- The evaluator doesn't do any security checks, so run it at your own risk.
 
 ## Running in console mode
 
