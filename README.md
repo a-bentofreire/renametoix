@@ -20,7 +20,7 @@ If you find this project useful, please, read the [Support this Project](#suppor
 - **Single click macro**.
 - Counter, file datetime, and extension Macros.
 - Function Macros with regex group capture: `lower`, `upper`, `capitalize` and `title`.
-- Evaluates Python lambda expressions a macro.
+- Python lambda expressions Macro.
 - Start index for counter Macro.
 - Configurable list of macros.
 - Revert previous renames (first activate on Settings dialog).
