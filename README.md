@@ -10,6 +10,10 @@ Python lambda expression example:
 
 ![Image](https://cdn.jsdelivr.net/gh/a-bentofreire/a-bentofreire/media/renametoix/RenameToIX-Python-Expressions.gif)
 
+Reverse Geocoding macro example:
+
+![Image](https://cdn.jsdelivr.net/gh/a-bentofreire/a-bentofreire/media/renametoix/RenameToIX-Reverse-Geocoding.gif)
+
 Read section [Integrate](#integrate) on now to integrate with Nemo, Nautilus and Thunar.
 
 If you find this project useful, please, read the [Support this Project](#support-this-project) on how to contribute.  
@@ -21,6 +25,8 @@ If you find this project useful, please, read the [Support this Project](#suppor
 - Counter, file datetime, and extension Macros.
 - Function Macros with regex group capture: `lower`, `upper`, `capitalize` and `title`.
 - Python lambda expressions Macro.
+- Reverse geocoding of JPEG images from GPS information via [geo plugin](#geo-plugin).
+- Macro extensions using [plugins](#plugins).
 - Start index for counter Macro.
 - Configurable list of macros.
 - Revert previous renames (first activate on Settings dialog).
@@ -55,13 +61,14 @@ RenameToIX uses `xdg-open` and `notify-send` external commands.
 - `%0{capitalize}` `%0{c}` - capitalize (function)
 - `%0{title}` `%0{t}` - capitalize (function)
 - `%:{expr}` - evaluates [python lambda expressions](#python-lambda-expressions)
+- `%!{geo:%country%, %city%}` - replaces with the "country", "city" from the JPEG image GPS info via [geo plugin](#geo-plugin)
 
 ## Macro functions
 
 The macro functions can also be used with regular expressions to capture groups.
 
 ex:
-- Find: `.^.*$`
+- Find: `^.*$`
 - Replace: `%0{title}`
 - Filename: `my document.png` will become `My Document.png`
 
@@ -73,18 +80,50 @@ ex:
 
 The `%:{expr}` will internally evaluate a lambda expression: `eval(f"lambda m: {expr}")(groups)`
 
-where groups are the captured groups from a regular expression.
+where groups are:
+- if regular expressions, then are the captured groups from a regular expression.
+- otherwise, it's the text to find.
 
 ex:
-- Find: `.^(.*)-(.*)$`
+- Find: `^(.*)-(.*)$`
 - Replace: `%:{m[2] - m[1]}`
+- Regular Expression: `checked`.
 - Filename: `code-actions.py` will become `Actions - Code.py`
 
 ### Features and Limitations
 
-- First, enable Regular Expression mode to capture groups.
-- The script can't contain a closed curly bracket `}`.
+- The expression can't contain a closed curly bracket `}`.
 - The evaluator doesn't do any security checks, so run it at your own risk.
+
+## Plugins
+
+The `%!{plugin_name:expr}` will call an external plugin to evaluate the expression.  
+
+- Plugins are python scripts located on `/usr/lib/renametoix/plugins`.
+- A plugin must have a function named `get_worker()`, returning an instance of a class with the following methods:
+- The expression can't contain a closed curly bracket `}`.
+
+| Method | Description |
+| -- | -- |
+| `is_slow(self)` | returns `True` if the plugin requires slow operations |
+| `get_extensions(self)` | returns a list of file extensions supported |
+| `eval_expr(self, macro, filename, groups)` | evaluates a macro. It should be a fast operation |
+| `prepare(self, files)` | for each file, it will prepare the macro evaluation<br>if `is_slow` is `True`, it will run in a working thread if it's GUI mode |
+
+## Geo Plugin
+
+Geo Plugin performs reverse geocoding.
+
+- Requires install python packages: `pip install geopy piexif`.
+- Supports the following geocoding fields: `country`, `state`, `city`, `postcode`, `suburb`.
+- Supports `.jpg` and `.jpeg` file extensions.
+- Ending spaces, commas and semi-commas are striped.
+
+ex:
+- Find: `^(.*)$`
+- Replace: `%!{geo:%country%, %city%}`
+- Regular Expression: `checked`.
+- Filename: `IMG_.jpg` will become `MyCountry, MyCity.jpg`
 
 ## Running in console mode
 

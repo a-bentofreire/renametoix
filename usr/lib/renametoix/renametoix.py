@@ -19,11 +19,15 @@ import time
 import yaml
 import gettext
 import locale
+import threading
+import importlib
 
 import gi
 gi.require_version("Gtk", "3.0")  # noqa
 gi.require_version('Gio', '2.0')  # noqa
 from gi.repository import Gtk,  Gdk, GLib, Gio
+
+sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)), 'plugins'))
 
 APP = 'renametoix'
 LOCALE_DIR = "/usr/share/locale"
@@ -31,7 +35,6 @@ locale.bindtextdomain(APP, LOCALE_DIR)
 gettext.bindtextdomain(APP, LOCALE_DIR)
 gettext.textdomain(APP)
 _ = gettext.gettext
-
 
 REVERT_RENAME_SH = "revert-rename.sh"
 
@@ -48,11 +51,13 @@ macros_functions = {
 
 console_mode_text = _("Console Mode")
 arg_parser = argparse.ArgumentParser()
-arg_parser.add_argument("-console", action='store_true', default=False, help=console_mode_text)  # noqa
+arg_parser.add_argument("-console", action='store_true', default=False,
+                        help=console_mode_text)  # noqa
 arg_parser.add_argument("-start-index", type=int, default=1,
                         help=_("Start index used with there is a %0n macro").replace("%", "%%")
                         )  # noqa
-arg_parser.add_argument("-reg-ex", action='store_true', default=False, help=_("Uses regular expressions on the find field"))  # noqa
+arg_parser.add_argument("-reg-ex", action='store_true', default=False,
+                        help=_("Uses regular expressions on the find field"))  # noqa
 arg_parser.add_argument("-include-ext", action='store_true', default=False,
                         help=_("Renames including the file extension"))
 arg_parser.add_argument("-find", default="", help=_("Text to Find"))
@@ -60,11 +65,37 @@ arg_parser.add_argument("-replace", default="", help=_("Text to Replace"))
 arg_parser.add_argument("-allow-revert", action='store_true', default=False,
                         help="%s (%s)" % (_("Generates a revert script"), console_mode_text))
 arg_parser.add_argument("-test-mode", action='store_true', default=False,
-                        help="%s (%s)" % (_("Outputs only the new result, doesn't rename"), console_mode_text))
+                        help="%s (%s)" % (_("Outputs only the new result, doesn't rename"),
+                                          console_mode_text))
 arg_parser.add_argument("-revert-last", action='store_true', default=False,
                         help=_("Reverts last rename and exits"))
 arg_parser.add_argument("files", nargs="*", help=_("Files"))
 args = arg_parser.parse_args()
+
+
+# ------------------------------------------------------------------------
+#                               Plugin
+# ------------------------------------------------------------------------
+
+class Plugin:
+    def __init__(self, plugin_name):
+        self.is_slow = False
+        try:
+            self.worker = importlib.import_module(plugin_name).get_worker()
+            self.extensions = self.worker.get_extensions()
+        except:
+            self.worker = None
+
+    def set_new_files(self, new_files):
+        if self.worker:
+            self.new_files = self.filter_by_extension(new_files)
+            if self.new_files:
+                self.is_slow = self.is_slow or self.worker.is_slow()
+
+    def filter_by_extension(self, files):
+        return list(
+            filter(lambda f: os.path.splitext(f)[1].lower()
+                   in self.extensions, files)) if self.extensions and self.worker else files
 
 
 # ------------------------------------------------------------------------
@@ -83,9 +114,11 @@ class ConsoleRename:
                 "%0n", "%00n", "%000n", "%Y-%m-%d", "%Y-%m-%d-%H_%M_%S", "%Y-%m-%d %H_%M_%S", "%I",
                 "%0{upper}", "%0{lower}", "%0{capitalize}",
                 "%1{upper}", "%1{lower}", "%1{capitalize}",
-                "%:{m[0]}"
+                "%:{m[0]}",
+                "%!{geo:%country%, %city%}"
             ]
         }
+        self.default_macros = self.cfg["macros"]
         self.cfg_name = os.path.join(GLib.get_user_config_dir(), 'renametoix', 'renametoix.yaml')
         self.load_cfg()
         self.files = []
@@ -94,6 +127,9 @@ class ConsoleRename:
         self.allow_renames = False
         self.files_list_store = []
         self.revert_file = None
+        self.plugins = {}
+        self.prepared_files_count = 0
+        self.thread_running = False
 
     def load_cfg(self):
         if os.path.isfile(self.cfg_name):
@@ -107,8 +143,8 @@ class ConsoleRename:
         text = groups[group_nr]
         func = macros_functions.get(macro_name)
         return func(text) if func else text
-    
-    def run_python_script(self, script, groups):
+
+    def run_python_expr(self, script, groups):
         try:
             return eval(f"lambda m: {script}")(groups)
         except:
@@ -116,9 +152,13 @@ class ConsoleRename:
 
     def apply_macros(self, text, start_index, filename, groups):
         text = re.sub(r"%(\d*)n", lambda m: "%0*d" % (len(m.group(1)) + 1, start_index), text)
-        text = re.sub(r"%(\d)\{([a-z]+)\}", lambda m: self.macro_functions(int(m.group(1)), m.group(2), groups), text)
-        text = re.sub(r"%:\{([^}]+)\}", lambda m: self.run_python_script(m.group(1), groups), text)
-        stamp_parts = time.strftime("%Y_%m_%d_%H_%M_%S", time.localtime(os.path.getmtime(filename))).split("_")
+        text = re.sub(r"%(\d)\{([a-z]+)\}", lambda m: self.macro_functions(
+            int(m.group(1)), m.group(2), groups), text)
+        text = re.sub(r"%:\{([^}]+)\}", lambda m: self.run_python_expr(m.group(1), groups), text)
+        text = re.sub(r"%!\{(\w+):([^}]+)\}", lambda m:
+                      self.run_plugin_expr(m.group(1), m.group(2), filename, groups), text)
+        stamp_parts = time.strftime("%Y_%m_%d_%H_%M_%S",
+                                    time.localtime(os.path.getmtime(filename))).split("_")
         for index, macro_name in enumerate("YmdHMS"):
             text = text.replace(f"%{macro_name}", stamp_parts[index])
         text = text.replace(f"%E", os.path.splitext(filename)[1])
@@ -138,17 +178,22 @@ class ConsoleRename:
                 g_file = Gio.File.new_for_path(filename)
                 basename = g_file.get_basename()
                 dirname = g_file.get_parent().get_path() if g_file.has_parent() else ""
-                from_text, ext = os.path.splitext(basename) if not include_ext else (basename, None)
+                from_text, ext = os.path.splitext(basename) \
+                    if not include_ext else (basename, None)
                 new_text = re.sub(before, after, from_text, flags=re.A) if is_reg_ex \
                     else from_text.replace(before, after)
                 if new_text != from_text:
-                    if re.search(r"%[0-9A-Za-z:]", new_text):
-                        groups = [from_text]
+                    if re.search(r"%[0-9A-Za-z:!]", new_text):
+                        groups = [before]
                         if is_reg_ex:
                             matches = re.search(before, from_text, flags=re.A)
                             if matches:
                                 groups = [matches.group(0)] + list(matches.groups())
-                        new_text = self.apply_macros(new_text, start_index, filename, groups)
+                        try:
+                            new_text = self.apply_macros(new_text, start_index, filename, groups)
+                        except:
+                            self.files_list_store[index] = [dirname, basename, basename]
+                            continue
                         start_index += 1
                     new_basename = (new_text + ext) if not include_ext else new_text
                     new_filename = os.path.join(dirname, new_basename)
@@ -173,7 +218,8 @@ class ConsoleRename:
             if g_file.query_exists() and filename not in self.files:
                 basename = g_file.get_basename()
                 self.files_list_store.append(
-                    [g_file.get_parent().get_path() if g_file.has_parent() else "", basename, basename])
+                    [g_file.get_parent().get_path() if g_file.has_parent() else "",
+                     basename, basename])
                 self.files.append(filename)
         self.update_renames()
 
@@ -195,11 +241,13 @@ class ConsoleRename:
                     if not g_dest.query_exists():
                         if not test_mode:
                             if is_native:
-                                g_source.move(g_dest, Gio.FileCopyFlags.NONE, None, None, None, None)
+                                g_source.move(g_dest, Gio.FileCopyFlags.NONE,
+                                              None, None, None, None)
                             else:
                                 try:
                                     src_stream = g_source.read(None)
-                                    dest_stream = g_dest.replace(None, False, Gio.FileCreateFlags.NONE, None)
+                                    dest_stream = g_dest.replace(
+                                        None, False, Gio.FileCreateFlags.NONE, None)
                                     buffer_size = 8192
                                     while True:
                                         data = src_stream.read_bytes(buffer_size, None)
@@ -213,13 +261,23 @@ class ConsoleRename:
                                     print(f"Error during rename operation: {e}")
 
                             if allow_revert and is_native:
-                                self.add_revert(src_file, dst_file,
-                                                os.path.basename(src_file), os.path.basename(dst_file))
+                                self.add_revert(src_file, dst_file, os.path.basename(src_file),
+                                                os.path.basename(dst_file))
                             self.rename_count += 1
                         else:
                             print(f"{src_file} -> {Gio.File.new_for_path(dst_file).get_basename}")
             finally:
                 self.close_revert_script()
+
+    def console_mode_rename_ready(self, is_sync):
+        self.generate_new_names(self.args.start_index, self.args.reg_ex, self.args.include_ext,
+                                self.args.find, self.args.replace)
+        if not self.allow_renames:
+            sys.stderr.write("Rename conflict")
+            exit(1)
+        self.console_apply_renames(self.args.allow_revert, self.args.test_mode)
+        if self.rename_count:
+            print(f'%d files renamed' % self.rename_count)
 
     def console_mode_rename(self):
         if args.revert_last:
@@ -229,14 +287,50 @@ class ConsoleRename:
         if not self.files:
             sys.stderr.write(_("No Files"))
             exit(1)
-        self.generate_new_names(self.args.start_index, self.args.reg_ex, self.args.include_ext,
-                                self.args.find, self.args.replace)
-        if not self.allow_renames:
-            sys.stderr.write("Rename conflict")
-            exit(1)
-        self.console_apply_renames(self.args.allow_revert, self.args.test_mode)
-        if self.rename_count:
-            print(f'%d files renamed' % self.rename_count)
+        self.init_plugins(self.args.replace, self.console_mode_rename_ready, True)
+
+    # Plugins
+
+    def prepare_plugins(self, callback, is_sync):
+        for plugin in self.plugins.values():
+            if plugin.worker:
+                plugin.worker.prepare(plugin.new_files)
+        if is_sync:
+            callback(is_sync)
+        else:
+            GLib.idle_add(callback, False)
+
+    def run_plugin_expr(self, plugin_name, macro, filename, groups):
+        plugin = self.plugins.get(plugin_name)
+        return plugin.worker.eval_expr(macro, filename, groups) \
+            if plugin and plugin.worker else macro
+
+    def init_plugins(self, replace_field, callback, is_console):
+        plugin_names = set(re.findall(r"%!\{(\w+):[^}]*\}", replace_field))
+        if not plugin_names or (set(self.plugins.keys()) == set(plugin_names) and
+                                len(self.files) == self.prepared_files_count):
+            return callback(True)
+
+        is_async = False
+        new_files = self.files[self.prepared_files_count:]
+        for plugin_name in plugin_names:
+            plugin = self.plugins.get(plugin_name)
+            if not plugin:
+                plugin = Plugin(plugin_name)
+                plugin.set_new_files(self.files)
+                self.plugins[plugin_name] = plugin
+            else:
+                plugin.set_new_files(new_files)
+            is_async = is_async or plugin.is_slow
+
+        self.prepared_files_count = len(self.files)
+
+        if not is_async or is_console:
+            self.prepare_plugins(callback, True)
+        else:
+            self.thread_running = True
+            threading.Thread(target=self.prepare_plugins, args=(callback, False),
+                             daemon=True).start()
 
     # Revert Files
 
@@ -297,12 +391,14 @@ class ConsoleRename:
             for script in sorted(os.listdir(self.cfg["revert-path"]), reverse=True):
                 if script.endswith(".sh"):
                     caption = _("Latest Revert") if script == REVERT_RENAME_SH else \
-                        re.sub(r"revert-rename-([0-9-]+)-(\d+)_(\d+)_(\d+)\.sh", r"\1 \2:\3:\4", script)
+                        re.sub(r"revert-rename-([0-9-]+)-(\d+)_(\d+)_(\d+)\.sh",
+                               r"\1 \2:\3:\4", script)
                     self.revert_scripts_with_caption.append([script, caption])
                     revert_list_store.append([caption])
         return revert_list_store
 
-    # Integration
+    # Integrations
+
     def get_integrations_paths(self):
         home = os.environ["HOME"]
         return {
@@ -386,6 +482,7 @@ class GUIRename(ConsoleRename):
     def __init__(self, args):
         super().__init__(args)
         self.ready = False
+        self.append_new_default_macros()
         self.sort_column = None
         self.current_folder = None
 
@@ -411,7 +508,7 @@ class GUIRename(ConsoleRename):
         self.connect("about_button", [[self.about_button_clicked]])
         self.connect("settings_button", [[self.settings_button_clicked]])
         self.connect("revert_button", [[self.revert_dialog_clicked]])
-        self.connect("add_files_button", [[self.add_files_button_clicked]])
+        self.add_files_button = self.connect("add_files_button", [[self.add_files_button_clicked]])
         self.cancel_button = self.connect("cancel_button", [[self.close_window]])
         self.cancel_button.set_label(_("Cancel"))  # @TODO: Determine why isn't ui translating this button
         self.ok_button = self.connect("ok_button", [[self.ok_button_clicked]])
@@ -428,11 +525,13 @@ class GUIRename(ConsoleRename):
             self.files_treeview.append_column(column)
 
         self.settings_dialog = self.builder.get_object("settings_dialog")
-        self.settings_dialog.add_buttons(_("Cancel"), Gtk.ResponseType.CANCEL, Gtk.STOCK_OK, Gtk.ResponseType.OK)
+        self.settings_dialog.add_buttons(_("Cancel"), Gtk.ResponseType.CANCEL,
+                                         Gtk.STOCK_OK, Gtk.ResponseType.OK)
         self.connect("integrate_button", [[self.integrate_clicked]])
 
         self.integrate_dialog = self.builder.get_object("integrate_dialog")
-        self.integrate_dialog.add_buttons(_("Cancel"), Gtk.ResponseType.CANCEL, Gtk.STOCK_OK, Gtk.ResponseType.OK)
+        self.integrate_dialog.add_buttons(_("Cancel"), Gtk.ResponseType.CANCEL,
+                                          Gtk.STOCK_OK, Gtk.ResponseType.OK)
 
         self.revert_dialog = self.builder.get_object("revert_dialog")
         self.revert_dialog.add_buttons(_("Close"), Gtk.ResponseType.CLOSE)
@@ -455,6 +554,16 @@ class GUIRename(ConsoleRename):
         self.app_window.show_all()
         self.ready = True
         self.update_renames()
+
+    def append_new_default_macros(self):
+        last_macro = self.default_macros[:-1]
+        self.cfg["last-macro"] = last_macro
+        if self.cfg.get("last-macro") != last_macro:
+            self.cfg["last-macro"] = last_macro
+            for macro in self.default_macros:
+                if macro not in self.cfg["macros"]:
+                    self.cfg["macros"].append(macro)
+            self.save_cfg()
 
     # Events
 
@@ -500,8 +609,9 @@ class GUIRename(ConsoleRename):
     def macro_button_clicked(self, widget):
         if self.find_entry.get_text() == "":
             self.reg_ex_button.set_active(True)
-            self.find_entry.set_text("^.*$")
-        self.replace_entry.set_text((self.replace_entry.get_text().strip() + f" {widget.get_label()}").strip())
+            self.find_entry.set_text("^(.*)$")
+        self.replace_entry.set_text((self.replace_entry.get_text().strip() +
+                                     f" {widget.get_label()}").strip())
         self.update_renames()
 
     def open_revert_folder_button_clicked(self, widget):
@@ -532,7 +642,8 @@ class GUIRename(ConsoleRename):
             self.cfg["send-notification"] = send_notification_check.get_active()
             self.cfg["revert-path"] = revert_path.get_text().strip()
             self.cfg["macros"] = macros_editor_buffer.get_text(
-                macros_editor_buffer.get_start_iter(), macros_editor_buffer.get_end_iter(), True).strip().split("\n")
+                macros_editor_buffer.get_start_iter(),
+                macros_editor_buffer.get_end_iter(), True).strip().split("\n")
             self.update_macro_widgets()
             self.save_cfg()
         self.settings_dialog.hide()
@@ -604,16 +715,28 @@ class GUIRename(ConsoleRename):
             menuitem.connect("activate", self.macro_button_clicked)
             macros_popup.append(menuitem)
 
+    def visual_allow_renames(self, enabled):
+        self.ok_button.set_sensitive(enabled)
+        self.files_treeview.set_sensitive(enabled)
+        self.add_files_button.set_sensitive(not self.thread_running)
+
+    def update_rename_ready(self, is_sync):
+        self.ready = True
+        self.thread_running = False
+        self.generate_new_names(
+            self.start_index_label_spin.get_value_as_int(),
+            self.reg_ex_button.get_active(),
+            self.include_ext_button.get_active(),
+            self.find_entry.get_text(),
+            self.replace_entry.get_text()
+        )
+        self.visual_allow_renames(self.allow_renames)
+
     def update_renames(self, widget=None):
         if self.ready:
-            self.generate_new_names(
-                self.start_index_label_spin.get_value_as_int(),
-                self.reg_ex_button.get_active(),
-                self.include_ext_button.get_active(),
-                self.find_entry.get_text(),
-                self.replace_entry.get_text()
-            )
-            self.ok_button.set_sensitive(self.allow_renames)
+            self.ready = False
+            self.visual_allow_renames(False)
+            self.init_plugins(self.replace_entry.get_text(), self.update_rename_ready, False)
 
     def save_cfg(self):
         cfg_path = os.path.dirname(self.cfg_name)
@@ -621,8 +744,10 @@ class GUIRename(ConsoleRename):
             os.makedirs(cfg_path)
         with open(self.cfg_name, "wt", encoding="utf8") as output_file:
             output_file.write(yaml.dump(self.cfg, default_flow_style=False, sort_keys=False,
-                                        allow_unicode=True, encoding="utf-8", width=200).decode("utf-8"))
+                                        allow_unicode=True, encoding="utf-8",
+                                        width=200).decode("utf-8"))
             output_file.close()
+        if self.ready:
             self.update_macro_widgets()
 
 
