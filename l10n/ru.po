@@ -1,0 +1,154 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Default Translation\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-08-31 12:00+0000\n"
+"PO-Revision-Date: 2024-08-31 12:00+0000\n"
+"Last-Translator: Alexandre Bento Freire <devtoix@a-bentofreire.com>\n"
+"Language-Team: English\n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "%d files renamed"
+msgstr "%d файлов переименовано"
+
+msgid "%s doesn't exists"
+msgstr "%s не существует"
+
+msgid "About"
+msgstr "О программе"
+
+msgid "Add Files"
+msgstr "Добавить файлы"
+
+msgid "Adds Macro to Replace field"
+msgstr "Добавляет макрос в поле замены"
+
+msgid "After"
+msgstr "После"
+
+msgid "Are you sure want to execute %s?"
+msgstr "Вы уверены, что хотите выполнить %s?"
+
+msgid "Before"
+msgstr "До"
+
+msgid "Cancel"
+msgstr "Отмена"
+
+msgid "Console Mode"
+msgstr "Консольный режим"
+
+msgid "Execute"
+msgstr "Выполнить"
+
+msgid "File Renamer"
+msgstr "Переименовыватель файлов"
+
+msgid "Files"
+msgstr "Файлы"
+
+msgid "Find"
+msgstr "Найти"
+
+msgid "Generates a revert script"
+msgstr "Создает скрипт для отмены изменений"
+
+msgid "Help"
+msgstr "Справка"
+
+msgid "Include Ext"
+msgstr "Включить расширение"
+
+msgid "Integrate"
+msgstr "Интегрировать"
+
+msgid "Integrations"
+msgstr "Интеграции"
+
+msgid "Latest Revert"
+msgstr "Последняя отмена"
+
+msgid "Macro"
+msgstr "Макрос"
+
+msgid "Macros"
+msgstr "Макросы"
+
+msgid "Nautilus Script"
+msgstr "Скрипт для Nautilus"
+
+msgid "Nemo Action"
+msgstr "Действие для Nemo"
+
+msgid "Nemo Integrated Rename"
+msgstr "Интегрированное переименование в Nemo"
+
+msgid "No"
+msgstr "Нет"
+
+msgid "No Files"
+msgstr "Нет файлов"
+
+msgid "Notification"
+msgstr "Уведомление"
+
+msgid "Open Folder"
+msgstr "Открыть папку"
+
+msgid "Outputs only the new result, doesn't rename"
+msgstr "Выводит только новый результат, не переименовывая"
+
+msgid "Path"
+msgstr "Путь"
+
+msgid "Regular Expression"
+msgstr "Регулярное выражение"
+
+# app-description
+msgid "Renames files and directories"
+msgstr "Переименовывает файлы и каталоги"
+
+msgid "Renames including the file extension"
+msgstr "Переименовывает, включая расширение файла"
+
+msgid "Replace"
+msgstr "Заменить"
+
+msgid "Revert"
+msgstr "Отменить"
+
+msgid "Revert Path"
+msgstr "Отменить путь"
+
+msgid "Reverts last rename and exits"
+msgstr "Отменяет последнее переименование и завершает работу"
+
+msgid "Reverts previous renames"
+msgstr "Отменяет предыдущие переименования"
+
+msgid "Settings"
+msgstr "Настройки"
+
+msgid "Start"
+msgstr "Начать"
+
+msgid "Start index used with there is a %0n macro"
+msgstr "Начальный индекс используется при наличии макроса %0n"
+
+msgid "Text to Find"
+msgstr "Текст для поиска"
+
+msgid "Text to Replace"
+msgstr "Текст для замены"
+
+msgid "Thunar Action"
+msgstr "Действие для Thunar"
+
+msgid "Uses regular expressions on the find field"
+msgstr "Использует регулярные выражения в поле поиска"
+
+msgid "Yes"
+msgstr "Да"

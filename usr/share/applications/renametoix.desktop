@@ -12,3 +12,5 @@ StartupNotify=false
 Description[pt]=Renomeia ficheiros e diretórios
 Description[es]=Cambiar el nombre de archivos y directorios
 Description[de]=Benennt Dateien und Verzeichnisse um
+Description[ru]=Переименовывает файлы и директории
+Description[uk]=Перейменовує файли та директорії
