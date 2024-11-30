@@ -5,8 +5,10 @@ renametoix (1.1.0) noble; urgency=low
   * Fix groups sent to macros when regex is unchecked
   * Disables the file list view when there is rename conflict
   * Add new default macros to a user modified configuration
+  * Add russian and ukrainian translations
+  * Add support for update locales on .csv file from .po and .desktop files
 
- -- Alexandre Bento Freire <dev@a-bentofreire.com>  Mon, 25 Nov 2024 09:19:56 +0000
+ -- Alexandre Bento Freire <dev@a-bentofreire.com>  Sat, 30 Nov 2024 10:17:13 +0000
 
 
 renametoix (1.0.12) noble; urgency=low

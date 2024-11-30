@@ -38,6 +38,9 @@ msgstr "Antes"
 msgid "Cancel"
 msgstr "Cancelar"
 
+msgid "Close"
+msgstr "Cerrar"
+
 msgid "Console Mode"
 msgstr "Modo consola"
 
@@ -91,6 +94,9 @@ msgstr "Sin archivos"
 
 msgid "Notification"
 msgstr "Notificación"
+
+msgid "Open"
+msgstr "Abrir"
 
 msgid "Open Folder"
 msgstr "Abrir carpeta"

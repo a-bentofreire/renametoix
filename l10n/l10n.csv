@@ -1,50 +1,50 @@
-en	pt	es	de
-%d files renamed	%d ficheiros renomeados	%d archivos renombrados	%d Dateien umbenannt
-%s doesn't exists	%s não existe	%s no existe	%s existiert nicht
-About	Sobre	Acerca de	Info
-Add Files	Adicionar ficheiros	Agregar archivos	Dateien hinzufügen
-Adds Macro to Replace field	Adiciona Macro no campo Substituir	Agregar macro en el campo Reemplazar	Fügt Makro zum Ersetzen-Feld hinzu
-After	Depois	Después	Nachher
-Are you sure want to execute %s?	Tem a certeza que quer executar %s?	¿Estás seguro de que quieres ejecutar %s?	Möchten Sie %s wirklich ausführen?
-Before	Antes	Antes	Vorher
-Cancel	Cancelar	Cancelar	Abbrechen
-Close	Fechar	Cerrar	Schließen
-Console Mode	Modo de Consola	Modo consola	Konsolenmodus
-Execute	Executar	Ejecutar	Ausführen
-File Renamer	Renomeador de ficheiros	Renombrador de archivos	Dateiumbenenner
-Files	Ficheiros	Archivos	Dateien
-Find	Procurar	Buscar	Suchen
-Generates a revert script	Gera um script de reversão	Genera un script de reversión	Generiert ein Rückgängig-Skript
-Help	Ajuda	Ayuda	Hilfe
-Include Ext	Incluir Ext	Incluir extensión	Erw einschließen
-Integrate	Integrar	Integrar	Integrieren
-Integrations	Integrações	Integraciones	Integrationen
-Latest Revert	Reversão mais recente	Última reversión	Letzte Rückgängig-Funktion
-Macro	Macro	Macro	Makro
-Macros	Macros	Macros	Makros
-Nautilus Script	Nautilus Script	Guión Nautilus	Nautilus-Skript
-Nemo Action	Ação Nemo	Acción Nemo	Nemo-Aktion
-Nemo Integrated Rename	Renomeação Nemo Integrada	Cambio de nombre de Nemo integrado	Integriertes Umbenennen in Nemo
-No	Não	No	Nein
-No Files	Sem ficheiros	Sin archivos	Keine Dateien
-Notification	Notificação	Notificación	Benachrichtigung
-Open Folder	Abrir Pasta	Abrir carpeta	Ordner öffnen
-Open	Abrir	Abrir	Ordner
-Outputs only the new result, doesn't rename	Saída apenas o novo resultado, não renomea	Genera solo el nuevo resultado, no cambies el nombre	Gibt nur das neue Ergebnis aus, benennt nicht um
-Path	Trilha	Camino	Pfad
-Regular Expression	Expressão Regular	Expresión regular	Regulärer Ausdruck
-Renames files and directories	Renomeia ficheiros e diretórios	Cambiar el nombre de archivos y directorios	Benennt Dateien und Verzeichnisse um
-Renames including the file extension	Renomeia incluindo a extensão do ficheiro	Cambiar el nombre incluyendo la extensión del archivo	Benennt einschließlich der Dateierweiterung um
-Replace	Substituir	Reemplazar	Ersetzen
-Revert	Reverter	Contrarrestar	Rückgängig
-Revert Path	Trilha para Reverter	Camino para revertir	Pfad rückgängig machen
-Reverts last rename and exits	Reverte o último renomeamento e termina	Revertir el último cambio de nombre y finalizar	Macht letzte Umbenennung rückgängig und beendet
-Reverts previous renames	Reverte renomeações anteriores	Revierte cambios de nombre anteriores	Macht vorherige Umbenennungen rückgängig
-Settings	Configurações	Ajustes	Einstellungen
-Start	Iniciar	Comenzar	Start
-Start index used with there is a %0n macro	Índice inicial utilizado com uma macro %0n	Índice inicial utilizado con una macro %0n	Startindex wird verwendet, wenn ein %0n-Makro vorhanden ist
-Text to Find	Texto para encontrar	Texto para encontrar	Zu suchender Text
-Text to Replace	Texto para substituir	Texto a reemplazar	Zu ersetzender Text
-Thunar Action	Ação Thunar	Acción Thunar	Thunar-Aktion
-Uses regular expressions on the find field	Utiliza expressões regulares no campo de Procurar	Utilice expresiones regulares en el campo de búsqueda	Verwendet reguläre Ausdrücke im Suchfeld
-Yes	Sim	Sí	Ja
+en	pt	es	de	ru	uk
+%d files renamed	%d ficheiros renomeados	%d archivos renombrados	%d Dateien umbenannt	%d файлов переименовано	%d файлів перейменовано
+%s doesn't exists	%s não existe	%s no existe	%s existiert nicht	%s не существует	%s не існує
+About	Sobre	Acerca de	Info	О программе	Про програму
+Add Files	Adicionar ficheiros	Agregar archivos	Dateien hinzufügen	Добавить файлы	Додати файли
+Adds Macro to Replace field	Adiciona Macro no campo Substituir	Agregar macro en el campo Reemplazar	Fügt Makro zum Ersetzen-Feld hinzu	Добавляет макрос в поле замены	Додає макрос у поле заміни
+After	Depois	Después	Nachher	После	Після
+Are you sure want to execute %s?	Tem a certeza que quer executar %s?	¿Estás seguro de que quieres ejecutar %s?	Möchten Sie %s wirklich ausführen?	Вы уверены, что хотите выполнить %s?	Ви впевнені, що хочете виконати %s?
+Before	Antes	Antes	Vorher	До	До
+Cancel	Cancelar	Cancelar	Abbrechen	Отмена	Скасувати
+Close	Fechar	Cerrar	Schließen	Закрыть	Закрити
+Console Mode	Modo de Consola	Modo consola	Konsolenmodus	Консольный режим	Режим консолі
+Execute	Executar	Ejecutar	Ausführen	Выполнить	Виконати
+File Renamer	Renomeador de ficheiros	Renombrador de archivos	Dateiumbenenner	Переименовыватель файлов	Перейменовувач файлів
+Files	Ficheiros	Archivos	Dateien	Файлы	Файли
+Find	Procurar	Buscar	Suchen	Найти	Знайти
+Generates a revert script	Gera um script de reversão	Genera un script de reversión	Generiert ein Rückgängig-Skript	Создает скрипт для отмены изменений	Створює скрипт для скасування змін
+Help	Ajuda	Ayuda	Hilfe	Справка	Довідка
+Include Ext	Incluir Ext	Incluir extensión	Erw einschließen	Включить расширение	Включити розширення
+Integrate	Integrar	Integrar	Integrieren	Интегрировать	Інтегрувати
+Integrations	Integrações	Integraciones	Integrationen	Интеграции	Інтеграції
+Latest Revert	Reversão mais recente	Última reversión	Letzte Rückgängig-Funktion	Последняя отмена	Останнє скасування
+Macro	Macro	Macro	Makro	Макрос	Макрос
+Macros	Macros	Macros	Makros	Макросы	Макроси
+Nautilus Script	Nautilus Script	Guión Nautilus	Nautilus-Skript	Скрипт для Nautilus	Скрипт для Nautilus
+Nemo Action	Ação Nemo	Acción Nemo	Nemo-Aktion	Действие для Nemo	Дія для Nemo
+Nemo Integrated Rename	Renomeação Nemo Integrada	Cambio de nombre de Nemo integrado	Integriertes Umbenennen in Nemo	Интегрированное переименование в Nemo	Інтегроване перейменування в Nemo
+No	Não	No	Nein	Нет	Ні
+No Files	Sem ficheiros	Sin archivos	Keine Dateien	Нет файлов	Немає файлів
+Notification	Notificação	Notificación	Benachrichtigung	Уведомление	Сповіщення
+Open Folder	Abrir Pasta	Abrir carpeta	Ordner öffnen	Открыть папку	Відкрити папку
+Open	Abrir	Abrir	Ordner	Открыть	Відкрити
+Outputs only the new result, doesn't rename	Saída apenas o novo resultado, não renomea	Genera solo el nuevo resultado, no cambies el nombre	Gibt nur das neue Ergebnis aus, benennt nicht um	Выводит только новый результат, не переименовывая	Виводить лише новий результат, не перейменовуючи
+Path	Trilha	Camino	Pfad	Путь	Шлях
+Regular Expression	Expressão Regular	Expresión regular	Regulärer Ausdruck	Регулярное выражение	Регулярний вираз
+Renames files and directories	Renomeia ficheiros e diretórios	Cambiar el nombre de archivos y directorios	Benennt Dateien und Verzeichnisse um	Переименовывает файлы и директории	Перейменовує файли та директорії
+Renames including the file extension	Renomeia incluindo a extensão do ficheiro	Cambiar el nombre incluyendo la extensión del archivo	Benennt einschließlich der Dateierweiterung um	Переименовывает, включая расширение файла	Перейменовує, включаючи розширення файлів
+Replace	Substituir	Reemplazar	Ersetzen	Заменить	Замінити
+Revert	Reverter	Contrarrestar	Rückgängig	Отменить	Скасувати
+Revert Path	Trilha para Reverter	Camino para revertir	Pfad rückgängig machen	Отменить путь	Скасувати шлях
+Reverts last rename and exits	Reverte o último renomeamento e termina	Revertir el último cambio de nombre y finalizar	Macht letzte Umbenennung rückgängig und beendet	Отменяет последнее переименование и завершает работу	Скасовує останнє перейменування та завершує роботу
+Reverts previous renames	Reverte renomeações anteriores	Revierte cambios de nombre anteriores	Macht vorherige Umbenennungen rückgängig	Отменяет предыдущие переименования	Скасовує попередні перейменування
+Settings	Configurações	Ajustes	Einstellungen	Настройки	Налаштування
+Start	Iniciar	Comenzar	Start	Начать	Почати
+Start index used with there is a %0n macro	Índice inicial utilizado com uma macro %0n	Índice inicial utilizado con una macro %0n	Startindex wird verwendet, wenn ein %0n-Makro vorhanden ist	Начальный индекс используется при наличии макроса %0n	Початковий індекс використовується за наявності макросу %0n
+Text to Find	Texto para encontrar	Texto para encontrar	Zu suchender Text	Текст для поиска	Текст для пошуку
+Text to Replace	Texto para substituir	Texto a reemplazar	Zu ersetzender Text	Текст для замены	Текст для заміни
+Thunar Action	Ação Thunar	Acción Thunar	Thunar-Aktion	Действие для Thunar	Дія для Thunar
+Uses regular expressions on the find field	Utiliza expressões regulares no campo de Procurar	Utilice expresiones regulares en el campo de búsqueda	Verwendet reguläre Ausdrücke im Suchfeld	Использует регулярные выражения в поле поиска	Використовує регулярні вирази у полі пошуку
+Yes	Sim	Sí	Ja	Да	Так

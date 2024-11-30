@@ -170,6 +170,8 @@ On RenameToIX application, click on the Settings button, and then `Integrate` bu
 - Portuguese
 - Spanish
 - German
+- Russian
+- Ukrainian
 
 ## Mtp Devices
 
@@ -207,6 +209,10 @@ If you find this project useful, consider supporting it:
 ## License
 
 GPLv3 License
+
+## Contributions
+
+- [claimsecond](https://github.com/claimsecond) - Translations in Russian and Ukrainian
 
 ## Copyrights
 

@@ -4,7 +4,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2024-08-31 12:00+0000\n"
 "PO-Revision-Date: 2024-08-31 12:00+0000\n"
-"Last-Translator: Alexandre Bento Freire <devtoix@a-bentofreire.com>\n"
+"Last-Translator: claimsecond\n"
 "Language-Team: English\n"
 "Language: en\n"
 "MIME-Version: 1.0\n"
@@ -37,6 +37,9 @@ msgstr "До"
 
 msgid "Cancel"
 msgstr "Отмена"
+
+msgid "Close"
+msgstr "Закрыть"
 
 msgid "Console Mode"
 msgstr "Консольный режим"
@@ -95,6 +98,9 @@ msgstr "Нет файлов"
 msgid "Notification"
 msgstr "Уведомление"
 
+msgid "Open"
+msgstr "Открыть"
+
 msgid "Open Folder"
 msgstr "Открыть папку"
 
@@ -109,7 +115,7 @@ msgstr "Регулярное выражение"
 
 # app-description
 msgid "Renames files and directories"
-msgstr "Переименовывает файлы и каталоги"
+msgstr "Переименовывает файлы и директории"
 
 msgid "Renames including the file extension"
 msgstr "Переименовывает, включая расширение файла"
