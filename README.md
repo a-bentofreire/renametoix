@@ -36,10 +36,27 @@ If you find this project useful, please, read the [Support this Project](#suppor
 
 ## Installation
 
+### Debian/Ubuntu
+
 ```bash
 sudo add-apt-repository ppa:a-bentofreire/toix
 sudo apt-get update
 sudo apt install renametoix
+``` 
+### Arch Linux 
+
+Install required dependencies:
+
+```bash
+sudo pacman -S python gtk3 python-gobject xdg-utils libnotify
+``` 
+Copy files to system directories: 
+
+```bash 
+sudo mkdir -p /usr/lib/renametoix
+sudo cp -r /home/claim/Documents/renametoix/usr/lib/renametoix/* /usr/lib/renametoix/
+sudo cp /home/claim/Documents/renametoix/usr/bin/renametoix /usr/bin/
+sudo chmod +x /usr/bin/renametoix
 ```
 
 ## Requirements
