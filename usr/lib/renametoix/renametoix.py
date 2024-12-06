@@ -115,7 +115,8 @@ class ConsoleRename:
                 "%0{upper}", "%0{lower}", "%0{capitalize}",
                 "%1{upper}", "%1{lower}", "%1{capitalize}",
                 "%:{m[0]}",
-                "%!{geo:%country%, %city%}"
+                "%!{geo:%country%, %city%}",
+                "%!{doc:%header%}"
             ]
         }
         self.default_macros = self.cfg["macros"]
@@ -164,29 +165,27 @@ class ConsoleRename:
         text = text.replace(f"%E", os.path.splitext(filename)[1])
         return text
 
-    def generate_new_names(self, start_index, is_reg_ex, include_ext, before, after):
+    def generate_new_names(self, start_index, is_reg_ex, include_ext, find, replace):
         new_filenames = set()
         self.renames.clear()
         for index, filename in enumerate(self.files):
             self.files_list_store[index][2] = self.files_list_store[index][1]
-        self.allow_renames = before != ""
-        if not self.allow_renames:
-            return
-
+        self.allow_renames = True
         try:
             for index, filename in enumerate(self.files):
                 g_file = Gio.File.new_for_path(filename)
                 basename = g_file.get_basename()
                 dirname = g_file.get_parent().get_path() if g_file.has_parent() else ""
                 from_text, ext = os.path.splitext(basename) \
-                    if not include_ext else (basename, None)
-                new_text = re.sub(before, after, from_text, flags=re.A) if is_reg_ex \
-                    else from_text.replace(before, after)
+                    if not include_ext else (basename, None)                
+                find_text = find or (from_text if not is_reg_ex else from_text)
+                new_text = re.sub(find_text, replace, from_text, flags=re.A) if is_reg_ex \
+                    else from_text.replace(find_text, replace)
                 if new_text != from_text:
                     if re.search(r"%[0-9A-Za-z:!]", new_text):
-                        groups = [before]
+                        groups = [find_text]
                         if is_reg_ex:
-                            matches = re.search(before, from_text, flags=re.A)
+                            matches = re.search(find_text, from_text, flags=re.A)
                             if matches:
                                 groups = [matches.group(0)] + list(matches.groups())
                         try:
@@ -200,7 +199,8 @@ class ConsoleRename:
                     self.files_list_store[index] = [dirname, basename, new_basename]
                     if new_text:
                         self.renames.append([filename, new_filename])
-                        self.allow_renames = self.allow_renames and new_filename not in new_filenames \
+                        self.allow_renames = self.allow_renames and  \
+                            new_filename not in new_filenames \
                             and not Gio.File.new_for_path(new_filename).query_exists()
                         if new_filename not in new_filenames:
                             new_filenames.add(new_filename)
@@ -556,8 +556,7 @@ class GUIRename(ConsoleRename):
         self.update_renames()
 
     def append_new_default_macros(self):
-        last_macro = self.default_macros[:-1]
-        self.cfg["last-macro"] = last_macro
+        last_macro = self.default_macros[-1]
         if self.cfg.get("last-macro") != last_macro:
             self.cfg["last-macro"] = last_macro
             for macro in self.default_macros:
@@ -607,9 +606,6 @@ class GUIRename(ConsoleRename):
         self.sort_column = column
 
     def macro_button_clicked(self, widget):
-        if self.find_entry.get_text() == "":
-            self.reg_ex_button.set_active(True)
-            self.find_entry.set_text("^(.*)$")
         self.replace_entry.set_text((self.replace_entry.get_text().strip() +
                                      f" {widget.get_label()}").strip())
         self.update_renames()

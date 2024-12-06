@@ -1,3 +1,12 @@
+renametoix (1.2.0) noble; urgency=low
+
+  * Add doc plugin
+  * Support when has an empty find field
+  * Fix last-macro field on configuration file
+
+ -- Alexandre Bento Freire <dev@a-bentofreire.com>  Fri, 06 Dec 2024 10:19:55 +0000
+
+
 renametoix (1.1.0) noble; urgency=low
 
   * Add plugin support

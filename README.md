@@ -4,7 +4,7 @@
 
 Simple macro example:
 
-![Image](https://cdn.jsdelivr.net/gh/a-bentofreire/a-bentofreire/media/renametoix/RenameToIX-Example-Macro.gif)
+![Image](https://cdn.jsdelivr.net/gh/a-bentofreire/a-bentofreire/media/renametoix/RenameToIX-Index-Macro.gif)
 
 Python lambda expression example:
 
@@ -13,6 +13,10 @@ Python lambda expression example:
 Reverse Geocoding macro example:
 
 ![Image](https://cdn.jsdelivr.net/gh/a-bentofreire/a-bentofreire/media/renametoix/RenameToIX-Reverse-Geocoding.gif)
+
+Doc Header macro example:
+
+![Image](https://cdn.jsdelivr.net/gh/a-bentofreire/a-bentofreire/media/renametoix/RenameToIX-Doc-Header.gif)
 
 Read section [Integrate](#integrate) on now to integrate with Nemo, Nautilus and Thunar.
 
@@ -24,10 +28,11 @@ If you find this project useful, please, read the [Support this Project](#suppor
 - **Single click macro**.
 - Counter, file datetime, and extension Macros.
 - Function Macros with regex group capture: `lower`, `upper`, `capitalize` and `title`.
-- Python lambda expressions Macro.
-- Reverse geocoding of JPEG images from GPS information via [geo plugin](#geo-plugin).
-- Macro extensions using [plugins](#plugins).
-- Start index for counter Macro.
+- Python lambda expressions macro.
+- Reverse geocoding of JPEG images from GPS information macro via [geo plugin](#geo-plugin).
+- Header of Word documents macro via [doc plugin](#doc-plugin).
+- Custom macro extensions using [plugins](#plugins).
+- Start index for counter macro.
 - Configurable list of macros.
 - Revert previous renames (first activate on Settings dialog).
 - Send notification after renames (first activate on Settings dialog).
@@ -62,16 +67,17 @@ RenameToIX uses `xdg-open` and `notify-send` external commands.
 - `%0{title}` `%0{t}` - capitalize (function)
 - `%:{expr}` - evaluates [python lambda expressions](#python-lambda-expressions)
 - `%!{geo:%country%, %city%}` - replaces with the "country", "city" from the JPEG image GPS info via [geo plugin](#geo-plugin)
+- `%!{doc:%header%}` - replaces with the "header" with the first header in a doc file [doc plugin](#doc-plugin)
 
 ## Macro functions
 
 The macro functions can also be used with regular expressions to capture groups.
 
-ex:
-- Find: `^.*$`
+ex1:
 - Replace: `%0{title}`
 - Filename: `my document.png` will become `My Document.png`
 
+ex2:
 - Find: `..(NEW).(design)`
 - Replace: `%1{l}-%2{u}`
 - Filename: `n-myNEW design.png` will become `n-new-DESIGN.png`
@@ -120,10 +126,20 @@ Geo Plugin performs reverse geocoding.
 - Ending spaces, commas and semi-commas are striped.
 
 ex:
-- Find: `^(.*)$`
 - Replace: `%!{geo:%country%, %city%}`
-- Regular Expression: `checked`.
 - Filename: `IMG_.jpg` will become `MyCountry, MyCity.jpg`
+
+## Doc Plugin
+
+Doc Plugin extracts the first header from a Word doc/docx file.
+
+- Requires install python package: `pip install python-docx`.
+- Supports the following geocoding fields: `header`.
+- Supports `.doc` and `.docx` file extensions.
+
+ex:
+- Replace: `%!{doc:%header%}`
+- Filename: `a.docx` will become `MyHeaderH1.docx`
 
 ## Running in console mode
 
