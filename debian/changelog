@@ -1,3 +1,11 @@
+renametoix (1.2.1) noble; urgency=low
+
+  * Fix when find and replace are empty 
+  * Change Add Files for a icon
+  * Fix deprecated stock-id field on .ui file
+
+ -- Alexandre Bento Freire <dev@a-bentofreire.com>  Fri, 06 Dec 2024 13:39:35 +0000
+
 renametoix (1.2.0) noble; urgency=low
 
   * Add doc plugin

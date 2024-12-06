@@ -1,22 +1,22 @@
 # Description
 
-[RenameToIX](https://www.devtoix.com/en/projects/renametoix) is a visual Linux file renamer built with Gtk, designed to be an alternative to [Linux Mint](https://www.linuxmint.com/) bulky as file renamer for Nemo, Nautilus and Thunar File Managers.
+[RenameToIX](https://www.devtoix.com/en/projects/renametoix) is a visual Linux Gtk file renamer featuring an advanced macro ecosystem, seamlessly integrating with Nemo, Nautilus, and Thunar file managers.
 
 Simple macro example:
 
-![Image](https://cdn.jsdelivr.net/gh/a-bentofreire/a-bentofreire/media/renametoix/RenameToIX-Index-Macro.gif)
+![Image](https://cdn.jsdelivr.net/gh/a-bentofreire/a-bentofreire/media/renametoix/RenameToIX-Index-Macro-1.gif)
 
 Python lambda expression example:
 
-![Image](https://cdn.jsdelivr.net/gh/a-bentofreire/a-bentofreire/media/renametoix/RenameToIX-Python-Expressions.gif)
+![Image](https://cdn.jsdelivr.net/gh/a-bentofreire/a-bentofreire/media/renametoix/RenameToIX-Python-Expressions-1.gif)
 
 Reverse Geocoding macro example:
 
-![Image](https://cdn.jsdelivr.net/gh/a-bentofreire/a-bentofreire/media/renametoix/RenameToIX-Reverse-Geocoding.gif)
+![Image](https://cdn.jsdelivr.net/gh/a-bentofreire/a-bentofreire/media/renametoix/RenameToIX-Reverse-Geocoding-1.gif)
 
 Doc Header macro example:
 
-![Image](https://cdn.jsdelivr.net/gh/a-bentofreire/a-bentofreire/media/renametoix/RenameToIX-Doc-Header.gif)
+![Image](https://cdn.jsdelivr.net/gh/a-bentofreire/a-bentofreire/media/renametoix/RenameToIX-Doc-Header-1.gif)
 
 Read section [Integrate](#integrate) on now to integrate with Nemo, Nautilus and Thunar.
 

@@ -170,7 +170,10 @@ class ConsoleRename:
         self.renames.clear()
         for index, filename in enumerate(self.files):
             self.files_list_store[index][2] = self.files_list_store[index][1]
-        self.allow_renames = True
+        self.allow_renames = find != "" or replace != ""
+        if not self.allow_renames:
+            return
+
         try:
             for index, filename in enumerate(self.files):
                 g_file = Gio.File.new_for_path(filename)
