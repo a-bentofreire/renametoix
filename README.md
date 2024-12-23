@@ -20,11 +20,13 @@ Doc Header macro example:
 
 Read section [Integrate](#integrate) on now to integrate with Nemo, Nautilus and Thunar.
 
+For crenametoix, the console version, read [here](#crenametoix)
+
 If you find this project useful, please, read the [Support this Project](#support-this-project) on how to contribute.  
 
 ## Features
 
-- GUI and Console mode.
+- GUI and Console mode. (¹)
 - **Single click macro**.
 - Counter, file datetime, and extension Macros.
 - Function Macros with regex group capture: `lower`, `upper`, `capitalize` and `title`.
@@ -34,10 +36,14 @@ If you find this project useful, please, read the [Support this Project](#suppor
 - Custom macro extensions using [plugins](#plugins).
 - Start index for counter macro.
 - Configurable list of macros.
-- Revert previous renames (first activate on Settings dialog).
-- Send notification after renames (first activate on Settings dialog).
-- Integration with Nemo, Nautilus and Thunar File Manager.
-- Limited support for [mtp devices](#mtp-devices) (Smartphones, Cameras, etc...).
+
+- Revert previous renames (first activate on Settings dialog). (¹)
+- Send notification after renames (first activate on Settings dialog). (¹)
+- Integration with Nemo, Nautilus and Thunar File Manager. (¹)
+- Limited support for [mtp devices](#mtp-devices) (Smartphones, Cameras, etc...). (¹)
+- Translated into multiple languages *1*
+
+(¹) - supported only on renametoix but not on [crenametoix](#crenametoix)
 
 ## Installation
 
@@ -45,6 +51,18 @@ If you find this project useful, please, read the [Support this Project](#suppor
 sudo add-apt-repository ppa:a-bentofreire/toix
 sudo apt-get update
 sudo apt install renametoix
+```
+
+## crenametoix
+
+**crenametoix** is a version of renametoix for console only without Gtk dependencies,
+it supports all the features including plugins, except: translations, mtp devices, revert and notifications.  
+Configuration files aren't generated.
+
+```bash
+sudo add-apt-repository ppa:a-bentofreire/toix
+sudo apt-get update
+sudo apt install crenametoix
 ```
 
 ## Requirements
@@ -153,17 +171,19 @@ positional arguments:
 
 options:
   -h, --help            show this help message and exit
-  -console              Console mode
+  -console              Console mode (¹)
   -start-index START_INDEX
                         Start index used with there is a %0n macro
   -reg-ex               Uses regular expressions on the find field
   -include-ext          Renames including the file extension
   -find FIND            Text to Find
   -replace REPLACE      Text to Replace
-  -allow-revert         Generates a revert file (console mode)
-  -test-mode            Outputs only the new result, doesn't rename (console mode)
-  -revert-last          Reverts last rename and exits
+  -allow-revert         Generates a revert file (console mode) (¹)
+  -test-mode            Outputs only the new result, doesn't rename (console mode) (¹)
+  -revert-last          Reverts last rename and exits (¹)
 ```
+
+(¹) - supported only on renametoix but not on [crenametoix](#crenametoix)
 
 ## Revert the last rename in console mode
 
@@ -232,4 +252,4 @@ GPLv3 License
 
 ## Copyrights
 
-(c) 2024 [Alexandre Bento Freire](https://www.a-bentofreire.com)
+(c) 2024-2025 [Alexandre Bento Freire](https://www.a-bentofreire.com)

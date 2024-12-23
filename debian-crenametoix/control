@@ -1,0 +1,12 @@
+Source: crenametoix
+Section: misc
+Priority: optional
+Maintainer: Alexandre Bento Freire <dev@a-bentofreire.com>
+Build-Depends: debhelper (>=10)
+Standards-Version: 4.0.0
+Homepage: https://www.devtoix.com/en/projects/renametoix
+
+Package: crenametoix
+Architecture: any
+Depends: python3, ${misc:Depends}
+Description: File renamer with macros

@@ -1,6 +1,12 @@
+renametoix (1.3.0) noble; urgency=low
+
+  * Move the console code core into crenametoix
+
+ -- Alexandre Bento Freire <dev@a-bentofreire.com>  Mon, 23 Dec 2024 19:29:21 +0000
+
 renametoix (1.2.1) noble; urgency=low
 
-  * Fix when find and replace are empty 
+  * Fix when find and replace are empty
   * Change Add Files for a icon
   * Fix deprecated stock-id field on .ui file
 

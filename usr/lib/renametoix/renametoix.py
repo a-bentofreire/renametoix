@@ -19,15 +19,12 @@ import time
 import yaml
 import gettext
 import locale
-import threading
-import importlib
+import crenametoix
 
 import gi
 gi.require_version("Gtk", "3.0")  # noqa
 gi.require_version('Gio', '2.0')  # noqa
 from gi.repository import Gtk,  Gdk, GLib, Gio
-
-sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)), 'plugins'))
 
 APP = 'renametoix'
 LOCALE_DIR = "/usr/share/locale"
@@ -38,73 +35,26 @@ _ = gettext.gettext
 
 REVERT_RENAME_SH = "revert-rename.sh"
 
-macros_functions = {
-    "upper": lambda m: m.upper(),
-    "u": lambda m: m.upper(),
-    "lower": lambda m: m.lower(),
-    "l": lambda m: m.lower(),
-    "capitalize": lambda m: m.capitalize(),
-    "c": lambda m: m.capitalize(),
-    "title": lambda m: m.title(),
-    "t": lambda m: m.title()
-}
-
 console_mode_text = _("Console Mode")
 arg_parser = argparse.ArgumentParser()
 arg_parser.add_argument("-console", action='store_true', default=False,
                         help=console_mode_text)  # noqa
-arg_parser.add_argument("-start-index", type=int, default=1,
-                        help=_("Start index used with there is a %0n macro").replace("%", "%%")
-                        )  # noqa
-arg_parser.add_argument("-reg-ex", action='store_true', default=False,
-                        help=_("Uses regular expressions on the find field"))  # noqa
-arg_parser.add_argument("-include-ext", action='store_true', default=False,
-                        help=_("Renames including the file extension"))
-arg_parser.add_argument("-find", default="", help=_("Text to Find"))
-arg_parser.add_argument("-replace", default="", help=_("Text to Replace"))
+crenametoix.add_arguments(arg_parser)
 arg_parser.add_argument("-allow-revert", action='store_true', default=False,
                         help="%s (%s)" % (_("Generates a revert script"), console_mode_text))
-arg_parser.add_argument("-test-mode", action='store_true', default=False,
-                        help="%s (%s)" % (_("Outputs only the new result, doesn't rename"),
-                                          console_mode_text))
 arg_parser.add_argument("-revert-last", action='store_true', default=False,
                         help=_("Reverts last rename and exits"))
 arg_parser.add_argument("files", nargs="*", help=_("Files"))
 args = arg_parser.parse_args()
 
-
-# ------------------------------------------------------------------------
-#                               Plugin
-# ------------------------------------------------------------------------
-
-class Plugin:
-    def __init__(self, plugin_name):
-        self.is_slow = False
-        try:
-            self.worker = importlib.import_module(plugin_name).get_worker()
-            self.extensions = self.worker.get_extensions()
-        except:
-            self.worker = None
-
-    def set_new_files(self, new_files):
-        if self.worker:
-            self.new_files = self.filter_by_extension(new_files)
-            if self.new_files:
-                self.is_slow = self.is_slow or self.worker.is_slow()
-
-    def filter_by_extension(self, files):
-        return list(
-            filter(lambda f: os.path.splitext(f)[1].lower()
-                   in self.extensions, files)) if self.extensions and self.worker else files
-
-
 # ------------------------------------------------------------------------
 #                               ConsoleRename
 # ------------------------------------------------------------------------
 
-class ConsoleRename:
+
+class ConsoleRename(crenametoix.PureConsoleRename):
     def __init__(self, args):
-        self.args = args
+        super().__init__(args)
         self.cfg = {
             "version": 1.0,
             "revert-path": os.path.join(os.environ["HOME"], ".revert-renames"),
@@ -121,219 +71,45 @@ class ConsoleRename:
         }
         self.default_macros = self.cfg["macros"]
         self.cfg_name = os.path.join(GLib.get_user_config_dir(), 'renametoix', 'renametoix.yaml')
-        self.load_cfg()
-        self.files = []
-        self.renames = []
-        self.rename_count = 0
-        self.allow_renames = False
-        self.files_list_store = []
         self.revert_file = None
-        self.plugins = {}
-        self.prepared_files_count = 0
-        self.thread_running = False
+        self.load_cfg()
+
+    def get_g_file(self, filename):
+        return Gio.File.new_for_path(filename)
+
+    def get_g_file_from_uri(self, uri):
+        return Gio.File.new_for_uri(uri) if "://" in uri else Gio.File.new_for_path(uri)
+
+    def wait_until(self, callback):
+        GLib.idle_add(callback, False)
+        pass
+
+    def rename_file(self, g_source, g_dest, is_native):
+        if is_native:
+            g_source.move(g_dest, Gio.FileCopyFlags.NONE,
+                          None, None, None, None)
+        else:
+            try:
+                src_stream = g_source.read(None)
+                dest_stream = g_dest.replace(
+                    None, False, Gio.FileCreateFlags.NONE, None)
+                buffer_size = 8192
+                while True:
+                    data = src_stream.read_bytes(buffer_size, None)
+                    if data.get_size() == 0:
+                        break
+                    dest_stream.write_bytes(data, None)
+                src_stream.close(None)
+                dest_stream.close(None)
+                g_source.delete(None)
+            except GLib.Error as e:
+                print(f"Error during rename operation: {e}")
 
     def load_cfg(self):
         if os.path.isfile(self.cfg_name):
             with io.open(self.cfg_name, "r", encoding="utf8") as input_file:
                 self.cfg = yaml.safe_load(input_file)
             input_file.close()
-
-    def macro_functions(self, group_nr, macro_name, groups):
-        if len(groups) <= group_nr:
-            return ""
-        text = groups[group_nr]
-        func = macros_functions.get(macro_name)
-        return func(text) if func else text
-
-    def run_python_expr(self, script, groups):
-        try:
-            return eval(f"lambda m: {script}")(groups)
-        except:
-            return groups(0)
-
-    def apply_macros(self, text, start_index, filename, groups):
-        text = re.sub(r"%(\d*)n", lambda m: "%0*d" % (len(m.group(1)) + 1, start_index), text)
-        text = re.sub(r"%(\d)\{([a-z]+)\}", lambda m: self.macro_functions(
-            int(m.group(1)), m.group(2), groups), text)
-        text = re.sub(r"%:\{([^}]+)\}", lambda m: self.run_python_expr(m.group(1), groups), text)
-        text = re.sub(r"%!\{(\w+):([^}]+)\}", lambda m:
-                      self.run_plugin_expr(m.group(1), m.group(2), filename, groups), text)
-        stamp_parts = time.strftime("%Y_%m_%d_%H_%M_%S",
-                                    time.localtime(os.path.getmtime(filename))).split("_")
-        for index, macro_name in enumerate("YmdHMS"):
-            text = text.replace(f"%{macro_name}", stamp_parts[index])
-        text = text.replace(f"%E", os.path.splitext(filename)[1])
-        return text
-
-    def generate_new_names(self, start_index, is_reg_ex, include_ext, find, replace):
-        new_filenames = set()
-        self.renames.clear()
-        for index, filename in enumerate(self.files):
-            self.files_list_store[index][2] = self.files_list_store[index][1]
-        self.allow_renames = find != "" or replace != ""
-        if not self.allow_renames:
-            return
-
-        try:
-            for index, filename in enumerate(self.files):
-                g_file = Gio.File.new_for_path(filename)
-                basename = g_file.get_basename()
-                dirname = g_file.get_parent().get_path() if g_file.has_parent() else ""
-                from_text, ext = os.path.splitext(basename) \
-                    if not include_ext else (basename, None)                
-                find_text = find or (from_text if not is_reg_ex else from_text)
-                new_text = re.sub(find_text, replace, from_text, flags=re.A) if is_reg_ex \
-                    else from_text.replace(find_text, replace)
-                if new_text != from_text:
-                    if re.search(r"%[0-9A-Za-z:!]", new_text):
-                        groups = [find_text]
-                        if is_reg_ex:
-                            matches = re.search(find_text, from_text, flags=re.A)
-                            if matches:
-                                groups = [matches.group(0)] + list(matches.groups())
-                        try:
-                            new_text = self.apply_macros(new_text, start_index, filename, groups)
-                        except:
-                            self.files_list_store[index] = [dirname, basename, basename]
-                            continue
-                        start_index += 1
-                    new_basename = (new_text + ext) if not include_ext else new_text
-                    new_filename = os.path.join(dirname, new_basename)
-                    self.files_list_store[index] = [dirname, basename, new_basename]
-                    if new_text:
-                        self.renames.append([filename, new_filename])
-                        self.allow_renames = self.allow_renames and  \
-                            new_filename not in new_filenames \
-                            and not Gio.File.new_for_path(new_filename).query_exists()
-                        if new_filename not in new_filenames:
-                            new_filenames.add(new_filename)
-                    else:
-                        self.allow_renames = False
-                else:
-                    self.files_list_store[index] = [dirname, basename, basename]
-        except:
-            self.allow_renames = False
-
-    def add_files(self, uris):
-        for uri in uris:
-            g_file = Gio.File.new_for_uri(uri) if "://" in uri else Gio.File.new_for_path(uri)
-            filename = g_file.get_path()
-            if g_file.query_exists() and filename not in self.files:
-                basename = g_file.get_basename()
-                self.files_list_store.append(
-                    [g_file.get_parent().get_path() if g_file.has_parent() else "",
-                     basename, basename])
-                self.files.append(filename)
-        self.update_renames()
-
-    def add_source_files(self):
-        self.add_files(self.args.files)
-
-    def update_renames(self):
-        # to override
-        pass
-
-    def console_apply_renames(self, allow_revert, test_mode=False):
-        if self.allow_renames:
-            try:
-                for rename in self.renames:
-                    src_file, dst_file = rename
-                    g_source = Gio.File.new_for_path(src_file)
-                    g_dest = Gio.File.new_for_path(dst_file)
-                    is_native = g_source.is_native()
-                    if not g_dest.query_exists():
-                        if not test_mode:
-                            if is_native:
-                                g_source.move(g_dest, Gio.FileCopyFlags.NONE,
-                                              None, None, None, None)
-                            else:
-                                try:
-                                    src_stream = g_source.read(None)
-                                    dest_stream = g_dest.replace(
-                                        None, False, Gio.FileCreateFlags.NONE, None)
-                                    buffer_size = 8192
-                                    while True:
-                                        data = src_stream.read_bytes(buffer_size, None)
-                                        if data.get_size() == 0:
-                                            break
-                                        dest_stream.write_bytes(data, None)
-                                    src_stream.close(None)
-                                    dest_stream.close(None)
-                                    g_source.delete(None)
-                                except GLib.Error as e:
-                                    print(f"Error during rename operation: {e}")
-
-                            if allow_revert and is_native:
-                                self.add_revert(src_file, dst_file, os.path.basename(src_file),
-                                                os.path.basename(dst_file))
-                            self.rename_count += 1
-                        else:
-                            print(f"{src_file} -> {Gio.File.new_for_path(dst_file).get_basename}")
-            finally:
-                self.close_revert_script()
-
-    def console_mode_rename_ready(self, is_sync):
-        self.generate_new_names(self.args.start_index, self.args.reg_ex, self.args.include_ext,
-                                self.args.find, self.args.replace)
-        if not self.allow_renames:
-            sys.stderr.write("Rename conflict")
-            exit(1)
-        self.console_apply_renames(self.args.allow_revert, self.args.test_mode)
-        if self.rename_count:
-            print(f'%d files renamed' % self.rename_count)
-
-    def console_mode_rename(self):
-        if args.revert_last:
-            exit(self.exec_revert_script())
-
-        self.add_source_files()
-        if not self.files:
-            sys.stderr.write(_("No Files"))
-            exit(1)
-        self.init_plugins(self.args.replace, self.console_mode_rename_ready, True)
-
-    # Plugins
-
-    def prepare_plugins(self, callback, is_sync):
-        for plugin in self.plugins.values():
-            if plugin.worker:
-                plugin.worker.prepare(plugin.new_files)
-        if is_sync:
-            callback(is_sync)
-        else:
-            GLib.idle_add(callback, False)
-
-    def run_plugin_expr(self, plugin_name, macro, filename, groups):
-        plugin = self.plugins.get(plugin_name)
-        return plugin.worker.eval_expr(macro, filename, groups) \
-            if plugin and plugin.worker else macro
-
-    def init_plugins(self, replace_field, callback, is_console):
-        plugin_names = set(re.findall(r"%!\{(\w+):[^}]*\}", replace_field))
-        if not plugin_names or (set(self.plugins.keys()) == set(plugin_names) and
-                                len(self.files) == self.prepared_files_count):
-            return callback(True)
-
-        is_async = False
-        new_files = self.files[self.prepared_files_count:]
-        for plugin_name in plugin_names:
-            plugin = self.plugins.get(plugin_name)
-            if not plugin:
-                plugin = Plugin(plugin_name)
-                plugin.set_new_files(self.files)
-                self.plugins[plugin_name] = plugin
-            else:
-                plugin.set_new_files(new_files)
-            is_async = is_async or plugin.is_slow
-
-        self.prepared_files_count = len(self.files)
-
-        if not is_async or is_console:
-            self.prepare_plugins(callback, True)
-        else:
-            self.thread_running = True
-            threading.Thread(target=self.prepare_plugins, args=(callback, False),
-                             daemon=True).start()
 
     # Revert Files
 
@@ -399,6 +175,25 @@ class ConsoleRename:
                     self.revert_scripts_with_caption.append([script, caption])
                     revert_list_store.append([caption])
         return revert_list_store
+
+    def console_apply_renames(self, test_mode=False, allow_revert=None):
+        if self.allow_renames:
+            try:
+                self.allow_revert = allow_revert if allow_revert is not None \
+                    else self.args.allow_revert
+                super().console_apply_renames(test_mode)
+            finally:
+                self.close_revert_script()
+
+    def console_mode_rename(self):
+        if args.revert_last:
+            exit(self.exec_revert_script())
+        super().console_mode_rename()
+
+    def after_rename(self, src_file, dst_file, is_native):
+        if self.allow_revert and is_native:
+            self.add_revert(src_file, dst_file, os.path.basename(src_file),
+                            os.path.basename(dst_file))
 
     # Integrations
 
