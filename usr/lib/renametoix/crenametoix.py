@@ -98,7 +98,7 @@ class G_File():
 
     def query_exists(self):
         return os.path.exists(self.filename)
-    
+
     def is_native(self):
         return True
 
@@ -240,7 +240,7 @@ class PureConsoleRename(G_FileBridge):
         self.demon.join()
         callback()
 
-    def console_apply_renames(self, test_mode=False):
+    def console_apply_renames(self, test_mode=False, is_silent=False):
         if self.allow_renames:
             for rename in self.renames:
                 src_file, dst_file = rename
@@ -252,14 +252,14 @@ class PureConsoleRename(G_FileBridge):
                         self.rename_file(g_source, g_dest, is_native)
                         self.after_rename(src_file, dst_file, is_native)
                         self.rename_count += 1
-                    else:
-                        print(f"{src_file} -> {self.get_g_file(dst_file).get_basename}")
+                    if not is_silent:
+                        print(f"{src_file} -> {self.get_g_file(dst_file).get_basename()}")
 
     def console_mode_rename_ready(self, is_sync):
         self.generate_new_names(self.args.start_index, self.args.reg_ex, self.args.include_ext,
                                 self.args.find, self.args.replace)
         if not self.allow_renames:
-            sys.stderr.write("Rename conflict")
+            sys.stderr.write("Rename conflict\n")
             exit(1)
         self.console_apply_renames(self.args.test_mode)
         if self.rename_count:

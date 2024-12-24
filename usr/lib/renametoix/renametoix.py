@@ -176,12 +176,12 @@ class ConsoleRename(crenametoix.PureConsoleRename):
                     revert_list_store.append([caption])
         return revert_list_store
 
-    def console_apply_renames(self, test_mode=False, allow_revert=None):
+    def console_apply_renames(self, test_mode=False, allow_revert=None, is_silent=False):
         if self.allow_renames:
             try:
                 self.allow_revert = allow_revert if allow_revert is not None \
                     else self.args.allow_revert
-                super().console_apply_renames(test_mode)
+                super().console_apply_renames(test_mode, is_silent)
             finally:
                 self.close_revert_script()
 
@@ -392,7 +392,8 @@ class GUIRename(ConsoleRename):
         path, _focus = self.revert_files_tree.get_cursor()
         if path:
             script_name, caption = self.revert_scripts_with_caption[path.get_indices()[0]]
-            if script_name and self.confirmation_dialog(_("Are you sure want to execute %s?") % caption):
+            if script_name and self.confirmation_dialog(
+                    _("Are you sure want to execute %s?") % caption):
                 self.exec_revert_script(script_name)
                 self.populate_revert_list_store(self.builder.get_object("revert_list_store"))
 
@@ -470,7 +471,7 @@ class GUIRename(ConsoleRename):
 
     def apply_renames(self):
         if self.allow_renames:
-            self.console_apply_renames(self.cfg["allow-revert"])
+            self.console_apply_renames(allow_revert=self.cfg["allow-revert"], is_silent=True)
             self.notify_msg(_("%d files renamed") % self.rename_count)
 
     def close_window(self, widget=None):

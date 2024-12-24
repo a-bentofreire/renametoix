@@ -1,3 +1,10 @@
+renametoix (1.3.1) noble; urgency=low
+
+  * Fix visual rename issue
+  * Fix print rename result
+
+ -- Alexandre Bento Freire <dev@a-bentofreire.com>  Tue, 24 Dec 2024 09:09:49 +0000
+
 renametoix (1.3.0) noble; urgency=low
 
   * Move the console code core into crenametoix
