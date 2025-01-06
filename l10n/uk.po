@@ -158,3 +158,21 @@ msgstr "Використовує регулярні вирази у полі п�
 
 msgid "Yes"
 msgstr "Так"
+
+msgid "Error"
+msgstr "Помилка"
+
+msgid "Already exists"
+msgstr "Вже існує"
+
+msgid "Empty"
+msgstr "Порожній"
+
+msgid "Not changed"
+msgstr "Не змінено"
+
+msgid "Renamed"
+msgstr "Перейменовано"
+
+msgid "Conflicts with file"
+msgstr "Конфлікти з файлом"

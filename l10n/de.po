@@ -158,3 +158,21 @@ msgstr "Verwendet reguläre Ausdrücke im Suchfeld"
 
 msgid "Yes"
 msgstr "Ja"
+
+msgid "Error"
+msgstr "Fehler"
+
+msgid "Already exists"
+msgstr "Existiert bereits"
+
+msgid "Empty"
+msgstr "Leer"
+
+msgid "Not changed"
+msgstr "Nicht geändert"
+
+msgid "Renamed"
+msgstr "Umbenannt"
+
+msgid "Conflicts with file"
+msgstr "Konflikte mit Datei"

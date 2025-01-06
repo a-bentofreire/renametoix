@@ -3,7 +3,7 @@
 # -*- coding: UTF-8 -*-
 
 # ------------------------------------------------------------------------
-# Copyright (c) 2024 Alexandre Bento Freire. All rights reserved.
+# Copyright (c) 2024-2025 Alexandre Bento Freire. All rights reserved.
 # Licensed under the GPLv3 License.
 # ------------------------------------------------------------------------
 
@@ -17,6 +17,11 @@ import threading
 import importlib
 
 sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)), 'plugins'))
+
+STATE_ALREADY_EXISTS = -4
+STATE_EMPTY = -3
+STATE_NOT_CHANGED = -2
+STATE_RENAMED = -1
 
 
 def _(text): return text
@@ -128,14 +133,16 @@ class PureConsoleRename(G_FileBridge):
     def __init__(self, args):
         self.args = args
         self.files = []
+        self.files_list_store = []
+        self.files_state = []
         self.renames = []
         self.rename_count = 0
         self.allow_renames = False
-        self.files_list_store = []
         self.plugins = {}
         self.prepared_files_count = 0
         self.thread_running = False
         self.demon = None
+        self.exception = None
 
     def macro_functions(self, group_nr, macro_name, groups):
         if len(groups) <= group_nr:
@@ -161,14 +168,20 @@ class PureConsoleRename(G_FileBridge):
                                     time.localtime(os.path.getmtime(filename))).split("_")
         for index, macro_name in enumerate("YmdHMS"):
             text = text.replace(f"%{macro_name}", stamp_parts[index])
-        text = text.replace(f"%E", os.path.splitext(filename)[1])
+        basename, ext = os.path.splitext(os.path.basename(filename))
+        text = text.replace(f"%B", basename).replace(f"%E", ext)
         return text
 
+    def set_file_index_new_name(self, index, new_name=None):
+        self.files_list_store[index][2] = new_name if new_name is not None \
+            else self.files_list_store[index][1]
+
     def generate_new_names(self, start_index, is_reg_ex, include_ext, find, replace):
-        new_filenames = set()
+        new_filenames = {}
         self.renames.clear()
         for index, filename in enumerate(self.files):
-            self.files_list_store[index][2] = self.files_list_store[index][1]
+            self.set_file_index_new_name(index)
+            self.files_state[index] = STATE_NOT_CHANGED
         self.allow_renames = find != "" or replace != ""
         if not self.allow_renames:
             return
@@ -180,38 +193,54 @@ class PureConsoleRename(G_FileBridge):
                 dirname = g_file.get_parent().get_path() if g_file.has_parent() else ""
                 from_text, ext = os.path.splitext(basename) \
                     if not include_ext else (basename, None)
-                find_text = find or (from_text if not is_reg_ex else from_text)
+                find_text = find or (from_text if not is_reg_ex else "^(.*)$")
                 new_text = re.sub(find_text, replace, from_text, flags=re.A) if is_reg_ex \
                     else from_text.replace(find_text, replace)
-                if new_text != from_text:
-                    if re.search(r"%[0-9A-Za-z:!]", new_text):
-                        groups = [find_text]
-                        if is_reg_ex:
-                            matches = re.search(find_text, from_text, flags=re.A)
-                            if matches:
-                                groups = [matches.group(0)] + list(matches.groups())
-                        try:
-                            new_text = self.apply_macros(new_text, start_index, filename, groups)
-                        except:
-                            self.files_list_store[index] = [dirname, basename, basename]
-                            continue
-                        start_index += 1
-                    new_basename = (new_text + ext) if not include_ext else new_text
-                    new_filename = os.path.join(dirname, new_basename)
-                    self.files_list_store[index] = [dirname, basename, new_basename]
-                    if new_text:
-                        self.renames.append([filename, new_filename])
-                        self.allow_renames = self.allow_renames and  \
-                            new_filename not in new_filenames \
-                            and not self.get_g_file(new_filename).query_exists()
-                        if new_filename not in new_filenames:
-                            new_filenames.add(new_filename)
+
+                if new_text and re.search(r"%[0-9A-Za-z:!]", new_text):
+                    groups = [find_text]
+                    if is_reg_ex:
+                        matches = re.search(find_text, from_text, flags=re.A)
+                        if matches:
+                            groups = [matches.group(0)] + list(matches.groups())
+                    try:
+                        new_text = self.apply_macros(new_text, start_index, filename, groups)
+                    except Exception as e:
+                        self.set_file_index_new_name(index)
+                        self.files_state[index] = str(e.args[0]) if len(e.args) > 0 else ""
+                        continue
+                    start_index += 1
+
+                new_basename = (new_text + ext) if not include_ext else new_text
+                new_filename = os.path.join(dirname, new_basename)
+                self.set_file_index_new_name(index, new_basename)
+                if basename != new_basename:
+                    if new_basename:
+                        if not self.get_g_file(new_filename).query_exists():
+                            conflict_index = new_filenames.get(new_filename)
+                            if conflict_index is None:
+                                new_filenames[new_filename] = index
+                                self.renames.append([filename, new_filename])
+                                self.files_state[index] = STATE_RENAMED
+                            else:
+                                self.files_state[index] = conflict_index
+                        else:
+                            self.files_state[index] = STATE_ALREADY_EXISTS
                     else:
-                        self.allow_renames = False
-                else:
-                    self.files_list_store[index] = [dirname, basename, basename]
-        except:
+                        self.files_state[index] = STATE_EMPTY
+
+            self.allow_renames = len(self.renames) > 0
+        except Exception as e:
+            self.exception = e
             self.allow_renames = False
+
+    def get_state_description(self, state):
+        return state if type(state) == str else {
+            STATE_ALREADY_EXISTS: _("Already exists"),
+            STATE_EMPTY: _("Empty"),
+            STATE_NOT_CHANGED: _("Not changed"),
+            STATE_RENAMED: _("Renamed")
+        }.get(state, _("Conflicts with file") + (": %s" % self.files_list_store[state][1]))
 
     def add_files(self, uris):
         for uri in uris:
@@ -223,6 +252,7 @@ class PureConsoleRename(G_FileBridge):
                     [g_file.get_parent().get_path() if g_file.has_parent() else "",
                      basename, basename])
                 self.files.append(filename)
+                self.files_state.append(STATE_NOT_CHANGED)
         self.update_renames()
 
     def add_source_files(self):
@@ -255,20 +285,30 @@ class PureConsoleRename(G_FileBridge):
                     if not is_silent:
                         print(f"{src_file} -> {self.get_g_file(dst_file).get_basename()}")
 
+    def display_descriptions(self):
+        for index, filename in enumerate(self.files):
+            state = self.files_state[index]
+            if state != STATE_RENAMED:
+                sys.stdout.write(f"{filename}: {self.get_state_description(state)}\n")
+
     def console_mode_rename_ready(self, is_sync):
         self.generate_new_names(self.args.start_index, self.args.reg_ex, self.args.include_ext,
                                 self.args.find, self.args.replace)
         if not self.allow_renames:
-            sys.stderr.write("Rename conflict\n")
+            if self.exception:
+                sys.stderr.write(_("Error") + f" {self.exception}\n")
+            else:
+                self.display_descriptions()
             exit(1)
         self.console_apply_renames(self.args.test_mode)
         if self.rename_count:
-            print(f'%d files renamed' % self.rename_count)
+            sys.stdout.write((_('%d files renamed') % self.rename_count) + "\n")
+        self.display_descriptions()
 
     def console_mode_rename(self):
         self.add_source_files()
         if not self.files:
-            sys.stderr.write(_("No Files"))
+            sys.stderr.write(_("No files") + "\n")
             exit(1)
         self.init_plugins(self.args.replace, self.console_mode_rename_ready, True)
 

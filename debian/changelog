@@ -1,3 +1,15 @@
+renametoix (1.4.0) noble; urgency=low
+
+  * Add %B macro for basename
+  * Improve the conflicts checks
+  * Allow to rename even if some files have conflicts or errors
+  * Display conflicts or errors after rename valid files
+  * Display rows with different colors depending it has conflicts or not
+  * Display row with tooltip with conflict or error
+  * Add accelerators to labels and buttons
+
+ -- Alexandre Bento Freire <dev@a-bentofreire.com>  Mon, 06 Jan 2025 16:10:07 +0000
+
 renametoix (1.3.1) noble; urgency=low
 
   * Fix visual rename issue

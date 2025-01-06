@@ -6,5 +6,8 @@ debian/files
 debian/debhelper-build-stamp
 .private/*
 .src/*
+.tox/*
+src/*
+dist/*
 *.mo
 __pycache__

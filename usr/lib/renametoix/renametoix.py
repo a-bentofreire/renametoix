@@ -3,7 +3,7 @@
 # -*- coding: UTF-8 -*-
 
 # ------------------------------------------------------------------------
-# Copyright (c) 2024 Alexandre Bento Freire. All rights reserved.
+# Copyright (c) 2024-2025 Alexandre Bento Freire. All rights reserved.
 # Licensed under the GPLv3 License.
 # ------------------------------------------------------------------------
 
@@ -24,7 +24,7 @@ import crenametoix
 import gi
 gi.require_version("Gtk", "3.0")  # noqa
 gi.require_version('Gio', '2.0')  # noqa
-from gi.repository import Gtk,  Gdk, GLib, Gio
+from gi.repository import Gtk, Gdk, GLib, Gio
 
 APP = 'renametoix'
 LOCALE_DIR = "/usr/share/locale"
@@ -61,12 +61,13 @@ class ConsoleRename(crenametoix.PureConsoleRename):
             "allow-revert": False,
             "send-notification": False,
             "macros": [
-                "%0n", "%00n", "%000n", "%Y-%m-%d", "%Y-%m-%d-%H_%M_%S", "%Y-%m-%d %H_%M_%S", "%I",
+                "%0n", "%00n", "%000n", "%Y-%m-%d", "%Y-%m-%d-%H_%M_%S", "%Y-%m-%d %H_%M_%S", 
                 "%0{upper}", "%0{lower}", "%0{capitalize}",
                 "%1{upper}", "%1{lower}", "%1{capitalize}",
                 "%:{m[0]}",
                 "%!{geo:%country%, %city%}",
-                "%!{doc:%header%}"
+                "%!{doc:%header%}",
+                "%B", "%E",
             ]
         }
         self.default_macros = self.cfg["macros"]
@@ -86,13 +87,11 @@ class ConsoleRename(crenametoix.PureConsoleRename):
 
     def rename_file(self, g_source, g_dest, is_native):
         if is_native:
-            g_source.move(g_dest, Gio.FileCopyFlags.NONE,
-                          None, None, None, None)
+            g_source.move(g_dest, Gio.FileCopyFlags.NONE, None, None, None, None)
         else:
             try:
                 src_stream = g_source.read(None)
-                dest_stream = g_dest.replace(
-                    None, False, Gio.FileCreateFlags.NONE, None)
+                dest_stream = g_dest.replace(None, False, Gio.FileCreateFlags.NONE, None)
                 buffer_size = 8192
                 while True:
                     data = src_stream.read_bytes(buffer_size, None)
@@ -313,9 +312,27 @@ class GUIRename(ConsoleRename):
 
         self.files_list_store = self.builder.get_object("files_list_store")
         self.files_treeview = self.builder.get_object("files_treeview")
+        self.files_treeview.connect("query-tooltip", self.on_query_tooltip)
+        self.files_treeview.set_has_tooltip(True)
+
+        def get_style_color(flag):
+            rgba = style_context.get_color(flag)
+            return f"rgba({int(rgba.red * 255)}, {int(rgba.green * 255)}, " + \
+                f" {int(rgba.blue * 255)}, {rgba.alpha})"
+
+        style_context = self.files_treeview.get_style_context()
+        self.row_colors = {
+            crenametoix.STATE_ALREADY_EXISTS: "rgba(220, 0, 0, 1)",
+            crenametoix.STATE_EMPTY: get_style_color(Gtk.StateFlags.NORMAL),
+            crenametoix.STATE_NOT_CHANGED: get_style_color(Gtk.StateFlags.INSENSITIVE),
+            crenametoix.STATE_RENAMED: get_style_color(Gtk.StateFlags.SELECTED),
+            0: "rgba(255, 0, 0, 1)"
+        }
+
         for i, column_title in enumerate([_("Path"), _("Before"), _("After")]):
             renderer = Gtk.CellRendererText()
             column = Gtk.TreeViewColumn(column_title, renderer, text=i)
+            column.set_cell_data_func(renderer, self.set_row_color, None)
             column.set_resizable(True)
             column.set_reorderable(True)
             column.set_clickable(True)
@@ -344,7 +361,7 @@ class GUIRename(ConsoleRename):
         self.include_ext_button.set_active(self.args.include_ext)
         self.find_entry.set_text(self.args.find)
         self.replace_entry.set_text(self.args.replace)
-
+        self.add_accelerators()
         self.add_source_files()
         screen = Gdk.Display.get_default().get_monitor(0).get_geometry()
         self.app_window.set_default_size(screen.width, screen.height - 100)
@@ -352,6 +369,37 @@ class GUIRename(ConsoleRename):
         self.app_window.show_all()
         self.ready = True
         self.update_renames()
+
+    def on_query_tooltip(self, widget, x, y, _, tooltip):
+        path, _, cx, cy = widget.get_path_at_pos(x, y) or (None, None, None, None)
+        if path is not None:
+            row_index = path.get_indices()[0] - 1
+            if row_index >= 0:
+                state = self.files_state[row_index]
+                if state != crenametoix.STATE_RENAMED and state is not None:
+                    tooltip.set_text(self.get_state_description(state))
+                    return True
+        return False
+
+    def add_accelerators(self):
+        accelerators = set()
+        for object_name in [
+            "find_label", "replace_label", "start_index_label",
+                "reg_ex_button", "include_ext_button", "ok_button", "cancel_button"
+        ]:
+            obj = self.builder.get_object(object_name)
+            caption = obj.get_text() if isinstance(obj, Gtk.Label) else obj.get_label()
+            index = 0
+            while caption[index].lower() in accelerators:
+                index += 1
+            caption = caption[0:index] + "_" + caption[index:]
+            accelerators.add(caption[index + 1].lower())
+            if isinstance(obj, Gtk.Label):
+                obj.set_text(caption)
+                obj.set_mnemonic_widget(obj.get_accel_widget())
+            else:
+                obj.set_label(caption)
+            obj.set_use_underline(True)
 
     def append_new_default_macros(self):
         last_macro = self.default_macros[-1]
@@ -363,6 +411,14 @@ class GUIRename(ConsoleRename):
             self.save_cfg()
 
     # Events
+
+    def set_row_color(self, column, cell, model, tree_iter, user_data):
+        path = model[tree_iter].path
+        if path is not None:
+            row_index = path.get_indices()[0]
+            state = self.files_state[row_index]
+            color = self.row_colors.get(state) or self.row_colors[0]
+            cell.set_property("foreground", color)
 
     def about_button_clicked(self, widget):
         self.about_dialog.run()
@@ -512,6 +568,7 @@ class GUIRename(ConsoleRename):
 
     def visual_allow_renames(self, enabled):
         self.ok_button.set_sensitive(enabled)
+        self.files_treeview.queue_draw()
         self.files_treeview.set_sensitive(enabled)
         self.add_files_button.set_sensitive(not self.thread_running)
 

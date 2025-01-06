@@ -26,7 +26,7 @@ Nautilus Script	Nautilus Script	Guión Nautilus	Nautilus-Skript	Скрипт д�
 Nemo Action	Ação Nemo	Acción Nemo	Nemo-Aktion	Действие для Nemo	Дія для Nemo
 Nemo Integrated Rename	Renomeação Nemo Integrada	Cambio de nombre de Nemo integrado	Integriertes Umbenennen in Nemo	Интегрированное переименование в Nemo	Інтегроване перейменування в Nemo
 No	Não	No	Nein	Нет	Ні
-No Files	Sem ficheiros	Sin archivos	Keine Dateien	Нет файлов	Немає файлів
+No files	Sem ficheiros	Sin archivos	Keine dateien	Нет файлов	Немає файлів
 Notification	Notificação	Notificación	Benachrichtigung	Уведомление	Сповіщення
 Open Folder	Abrir Pasta	Abrir carpeta	Ordner öffnen	Открыть папку	Відкрити папку
 Open	Abrir	Abrir	Ordner	Открыть	Відкрити
@@ -48,3 +48,9 @@ Text to Replace	Texto para substituir	Texto a reemplazar	Zu ersetzender Text	Т�
 Thunar Action	Ação Thunar	Acción Thunar	Thunar-Aktion	Действие для Thunar	Дія для Thunar
 Uses regular expressions on the find field	Utiliza expressões regulares no campo de Procurar	Utilice expresiones regulares en el campo de búsqueda	Verwendet reguläre Ausdrücke im Suchfeld	Использует регулярные выражения в поле поиска	Використовує регулярні вирази у полі пошуку
 Yes	Sim	Sí	Ja	Да	Так
+Error	Erro	Error	Fehler	Ошибка	Помилка
+Already exists	Já existe	Ya existe	Existiert bereits	Уже существует	Вже існує
+Empty	Vazio	Vacío	Leer	Пусто	Порожній
+Not changed	Não alterado	Sin cambios	Nicht geändert	Не изменено	Не змінено
+Renamed	Renomeado	Renombrado	Umbenannt	Переименовано	Перейменовано
+Conflicts with file	Conflitos com o ficheiro	Conflictos con el archivo	Konflikte mit Datei	Конфликтует с файлом	Конфлікти з файлом

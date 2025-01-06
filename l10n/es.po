@@ -155,3 +155,21 @@ msgstr "Utilice expresiones regulares en el campo de búsqueda"
 
 msgid "Yes"
 msgstr "Sí"
+
+msgid "Error"
+msgstr "Error"
+
+msgid "Already exists"
+msgstr "Ya existe"
+
+msgid "Empty"
+msgstr "Vacío"
+
+msgid "Not changed"
+msgstr "Sin cambios"
+
+msgid "Renamed"
+msgstr "Renombrado"
+
+msgid "Conflicts with file"
+msgstr "Conflictos con el archivo"

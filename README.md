@@ -2,6 +2,8 @@
 
 [RenameToIX](https://www.devtoix.com/en/projects/renametoix) is a visual Linux Gtk file renamer featuring an advanced macro ecosystem, seamlessly integrating with Nemo, Nautilus, and Thunar file managers.
 
+For `crenametoix`, the console version, read [here](#crenametoix)
+
 Simple macro example:
 
 ![Image](https://cdn.jsdelivr.net/gh/a-bentofreire/a-bentofreire/media/renametoix/RenameToIX-Index-Macro-1.gif)
@@ -19,8 +21,6 @@ Doc Header macro example:
 ![Image](https://cdn.jsdelivr.net/gh/a-bentofreire/a-bentofreire/media/renametoix/RenameToIX-Doc-Header-1.gif)
 
 Read section [Integrate](#integrate) on now to integrate with Nemo, Nautilus and Thunar.
-
-For crenametoix, the console version, read [here](#crenametoix)
 
 If you find this project useful, please, read the [Support this Project](#support-this-project) on how to contribute.  
 
@@ -65,6 +65,12 @@ sudo apt-get update
 sudo apt install crenametoix
 ```
 
+**crenametoix** can also be installed via pip
+
+```bash
+pip install crenametoix
+```
+
 ## Requirements
 
 RenameToIX uses `xdg-open` and `notify-send` external commands.
@@ -72,6 +78,7 @@ RenameToIX uses `xdg-open` and `notify-send` external commands.
 ## Macros
 
 - `%n, %0n ... %00000n` - counter
+- `%B` - file basename (without extension)
 - `%E` - file extension
 - `%Y` - file 4-digit year
 - `%m` - file 2-digit month
@@ -99,6 +106,12 @@ ex2:
 - Find: `..(NEW).(design)`
 - Replace: `%1{l}-%2{u}`
 - Filename: `n-myNEW design.png` will become `n-new-DESIGN.png`
+
+ex3:
+- Find: ``
+- Replace: `new-%B ready`
+- Filename: `design.png` will become `new-design ready.png`
+
 
 ## Python Lambda Expressions
 

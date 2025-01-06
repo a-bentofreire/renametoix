@@ -1,0 +1,22 @@
+[project]
+name = "crenametoix"
+version = "1.4.0"
+authors = [
+  { name="Alexandre Bento Freire", email="devtoix@a-bentofreire.com" },
+]
+description = "Linux file renamer featuring an advanced macro ecosystem"
+readme = "README.md"
+requires-python = ">=3.9"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+keywords = ["linux", "rename", "file"]
+
+[project.urls]
+Homepage = "https://www.devtoix.com/en/projects/renametoix"
+Repository = "https://github.com/a-bentofreire/renametoix"
+Issues = "https://github.com/a-bentofreire/renametoix/issues"
+Changelog = "https://github.com/a-bentofreire/renametoix/blob/HEAD/CHANGELOG.md"
+Twitter = "https://x.com/devtoix"

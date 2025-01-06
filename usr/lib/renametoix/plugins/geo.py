@@ -2,7 +2,7 @@
 # -*- coding: UTF-8 -*-
 
 # ------------------------------------------------------------------------
-# Copyright (c) 2024 Alexandre Bento Freire. All rights reserved.
+# Copyright (c) 2024-2025 Alexandre Bento Freire. All rights reserved.
 # Licensed under the GPLv3 License.
 # ------------------------------------------------------------------------
 

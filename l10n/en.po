@@ -158,3 +158,21 @@ msgstr "Uses regular expressions on the find field"
 
 msgid "Yes"
 msgstr "Yes"
+
+msgid "Error"
+msgstr "Error"
+
+msgid "Already exists"
+msgstr "Already exists"
+
+msgid "Empty"
+msgstr "Empty"
+
+msgid "Not changed"
+msgstr "Not changed"
+
+msgid "Renamed"
+msgstr "Renamed"
+
+msgid "Conflicts with file"
+msgstr "Conflicts with file"

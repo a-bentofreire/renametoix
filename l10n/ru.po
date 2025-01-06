@@ -158,3 +158,21 @@ msgstr "Использует регулярные выражения в поле
 
 msgid "Yes"
 msgstr "Да"
+
+msgid "Error"
+msgstr "Ошибка"
+
+msgid "Already exists"
+msgstr "Уже существует"
+
+msgid "Empty"
+msgstr "Пусто"
+
+msgid "Not changed"
+msgstr "Не изменено"
+
+msgid "Renamed"
+msgstr "Переименовано"
+
+msgid "Conflicts with file"
+msgstr "Конфликтует с файлом"
