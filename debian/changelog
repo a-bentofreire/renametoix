@@ -1,3 +1,10 @@
+renametoix (1.4.1) noble; urgency=low
+
+  * Remove & from bin files
+  * Add support for crenametoix to be installed via pip
+
+ -- Alexandre Bento Freire <dev@a-bentofreire.com>  Tue, 07 Jan 2025 09:21:31 +0000
+
 renametoix (1.4.0) noble; urgency=low
 
   * Add %B macro for basename

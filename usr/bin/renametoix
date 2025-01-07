@@ -1,2 +1,2 @@
 #!/bin/bash
-/usr/lib/renametoix/renametoix.py "$@" &
+/usr/lib/renametoix/renametoix.py "$@"

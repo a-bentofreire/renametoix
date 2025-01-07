@@ -70,29 +70,35 @@ def update_ui_version():
 #                               prepare_pip
 # ------------------------------------------------------------------------
 
-def prepare_pip():
-    if not (match := re.search(r'^crenametoix \(([0-9\.]+)\)',
-                               read_file('debian-crenametoix/changelog'))):
-        print("No version on changelog.")
-        return False
-    version = match.group(1)
-    print(f"Version: {version}")
-    toml_filename = 'pyproject.toml'
-    content = re.sub(r'(version = ")[0-9\.]+(")',
-                     lambda m: m.group(1) + version + m.group(2),
-                     read_file(toml_filename))
-    write_file(toml_filename, content)
-    print(f"{toml_filename} version updated")
+def prepare_pip(update_version):
+    if update_version:
+        if not (match := re.search(r'^crenametoix \(([0-9\.]+)\)',
+                                   read_file('debian-crenametoix/changelog'))):
+            print("No version on changelog.")
+            return False
+        version = match.group(1)
+        print(f"Version: {version}")
+        toml_filename = 'pyproject.toml'
+        content = re.sub(r'(version = ")[0-9\.]+(")',
+                         lambda m: m.group(1) + version + m.group(2),
+                         read_file(toml_filename))
+        write_file(toml_filename, content)
+        print(f"{toml_filename} version updated")
+    os.chdir(project_root)
+    shutil.rmtree('src', ignore_errors=True)
+    os.makedirs('src/crenametoix/plugins', exist_ok=True)
+    write_file('src/crenametoix/__init__.py', '')
     shutil.copyfile('usr/lib/renametoix/crenametoix.py', 'src/crenametoix/crenametoix.py')
     for file in os.listdir('usr/lib/renametoix/plugins'):
         if file.endswith('.py'):
             shutil.copyfile(f'usr/lib/renametoix/plugins/{file}', f'src/crenametoix/plugins/{file}')
-    print(f"files copied")
+    print("Files Copied")
     return True
 
 
 arg_parser = argparse.ArgumentParser()
 arg_parser.add_argument("-folder", type=str, default="debian")
+arg_parser.add_argument("-no-update-version", action="store_true")
 arg_parser.add_argument("action", choices=[
     "update-changelog-date",
     "update-ui-version",
@@ -106,4 +112,4 @@ if action == "update-changelog-date":
 elif action == "update-ui-version":
     exit(int(not update_ui_version()))
 elif action == "prepare-pip":
-    exit(int(not prepare_pip()))
+    exit(int(not prepare_pip(not args.no_update_version)))

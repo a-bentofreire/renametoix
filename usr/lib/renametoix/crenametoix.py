@@ -356,10 +356,12 @@ class PureConsoleRename(G_FileBridge):
                                           args=(callback, False), daemon=True)
             self.demon.start()
 
-
-if __name__ == "__main__":
+def run_as_package():
     arg_parser = argparse.ArgumentParser()
     add_arguments(arg_parser)
     arg_parser.add_argument("files", nargs="*", help=_("Files"))
     args = arg_parser.parse_args()
     PureConsoleRename(args).console_mode_rename()
+
+if __name__ == "__main__":
+    run_as_package()

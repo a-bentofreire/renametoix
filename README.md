@@ -2,7 +2,7 @@
 
 [RenameToIX](https://www.devtoix.com/en/projects/renametoix) is a visual Linux Gtk file renamer featuring an advanced macro ecosystem, seamlessly integrating with Nemo, Nautilus, and Thunar file managers.
 
-For `crenametoix`, the console version, read [here](#crenametoix)
+For `crenametoix`, the console version without Gtk dependencies, read [here](https://www.devtoix.com/en/projects/renametoix#crenametoix)
 
 Simple macro example:
 
@@ -111,7 +111,6 @@ ex3:
 - Find: ``
 - Replace: `new-%B ready`
 - Filename: `design.png` will become `new-design ready.png`
-
 
 ## Python Lambda Expressions
 

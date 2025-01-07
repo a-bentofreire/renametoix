@@ -1,6 +1,6 @@
 [project]
 name = "crenametoix"
-version = "1.4.0"
+version = "1.4.1"
 authors = [
   { name="Alexandre Bento Freire", email="devtoix@a-bentofreire.com" },
 ]
@@ -14,9 +14,13 @@ classifiers = [
 ]
 keywords = ["linux", "rename", "file"]
 
+[project.scripts]
+crenametoix = "crenametoix.crenametoix:run_as_package"
+
 [project.urls]
 Homepage = "https://www.devtoix.com/en/projects/renametoix"
 Repository = "https://github.com/a-bentofreire/renametoix"
 Issues = "https://github.com/a-bentofreire/renametoix/issues"
 Changelog = "https://github.com/a-bentofreire/renametoix/blob/HEAD/CHANGELOG.md"
 Twitter = "https://x.com/devtoix"
+
