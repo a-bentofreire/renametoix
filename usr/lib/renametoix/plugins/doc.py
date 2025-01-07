@@ -22,7 +22,7 @@ class DocWorker:
     def eval_expr(self, macro, filename, groups):
         header = self.files[filename]
         if header:
-            return macro.replace(f"%header%", header)
+            return macro.replace("%header%", header)
         raise
 
     def prepare(self, files):

@@ -96,13 +96,26 @@ def prepare_pip(update_version):
     return True
 
 
+# ------------------------------------------------------------------------
+#                               clean
+# ------------------------------------------------------------------------
+
+def clean():
+    os.chdir(project_root)
+    shutil.rmtree('dist', ignore_errors=True)
+    shutil.rmtree('src', ignore_errors=True)
+    # shutil.rmtree('.tox', ignore_errors=True)
+    shutil.rmtree('tests/__pycache__', ignore_errors=True)
+
+
 arg_parser = argparse.ArgumentParser()
 arg_parser.add_argument("-folder", type=str, default="debian")
 arg_parser.add_argument("-no-update-version", action="store_true")
 arg_parser.add_argument("action", choices=[
     "update-changelog-date",
     "update-ui-version",
-    "prepare-pip"
+    "prepare-pip",
+    "clean"
 ])
 args = arg_parser.parse_args()
 action = args.action
@@ -113,3 +126,5 @@ elif action == "update-ui-version":
     exit(int(not update_ui_version()))
 elif action == "prepare-pip":
     exit(int(not prepare_pip(not args.no_update_version)))
+elif action == "clean":
+    clean()

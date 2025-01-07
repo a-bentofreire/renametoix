@@ -24,7 +24,8 @@ STATE_NOT_CHANGED = -2
 STATE_RENAMED = -1
 
 
-def _(text): return text
+def _(text):
+    return text
 
 
 macros_functions = {
@@ -169,7 +170,7 @@ class PureConsoleRename(G_FileBridge):
         for index, macro_name in enumerate("YmdHMS"):
             text = text.replace(f"%{macro_name}", stamp_parts[index])
         basename, ext = os.path.splitext(os.path.basename(filename))
-        text = text.replace(f"%B", basename).replace(f"%E", ext)
+        text = text.replace("%B", basename).replace("%E", ext)
         return text
 
     def set_file_index_new_name(self, index, new_name=None):
@@ -235,7 +236,7 @@ class PureConsoleRename(G_FileBridge):
             self.allow_renames = False
 
     def get_state_description(self, state):
-        return state if type(state) == str else {
+        return state if type(state) is str else {
             STATE_ALREADY_EXISTS: _("Already exists"),
             STATE_EMPTY: _("Empty"),
             STATE_NOT_CHANGED: _("Not changed"),
@@ -330,8 +331,8 @@ class PureConsoleRename(G_FileBridge):
 
     def init_plugins(self, replace_field, callback, is_console):
         plugin_names = set(re.findall(r"%!\{(\w+):[^}]*\}", replace_field))
-        if not plugin_names or (set(self.plugins.keys()) == set(plugin_names) and
-                                len(self.files) == self.prepared_files_count):
+        if not plugin_names or (set(self.plugins.keys()) == set(plugin_names)
+                                and len(self.files) == self.prepared_files_count):
             return callback(True)
 
         is_async = False
@@ -356,12 +357,14 @@ class PureConsoleRename(G_FileBridge):
                                           args=(callback, False), daemon=True)
             self.demon.start()
 
+
 def run_as_package():
     arg_parser = argparse.ArgumentParser()
     add_arguments(arg_parser)
     arg_parser.add_argument("files", nargs="*", help=_("Files"))
     args = arg_parser.parse_args()
     PureConsoleRename(args).console_mode_rename()
+
 
 if __name__ == "__main__":
     run_as_package()

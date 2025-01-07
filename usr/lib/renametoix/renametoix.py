@@ -61,7 +61,7 @@ class ConsoleRename(crenametoix.PureConsoleRename):
             "allow-revert": False,
             "send-notification": False,
             "macros": [
-                "%0n", "%00n", "%000n", "%Y-%m-%d", "%Y-%m-%d-%H_%M_%S", "%Y-%m-%d %H_%M_%S", 
+                "%0n", "%00n", "%000n", "%Y-%m-%d", "%Y-%m-%d-%H_%M_%S", "%Y-%m-%d %H_%M_%S",
                 "%0{upper}", "%0{lower}", "%0{capitalize}",
                 "%1{upper}", "%1{lower}", "%1{capitalize}",
                 "%:{m[0]}",
@@ -123,7 +123,7 @@ class ConsoleRename(crenametoix.PureConsoleRename):
             self.revert_file = open(self.revert_name, "w")
             self.revert_file.write("echo Reverting Changes:\n\n")
 
-        self.revert_file.write(f"printf \"'{new_basename}' → '{basename}'\\n\" 2>/dev/null\n" +
+        self.revert_file.write(f"printf \"'{new_basename}' → '{basename}'\\n\" 2>/dev/null\n"
                                f"mv '{new_fullname}' '{fullname}'\n")
 
     def exec_revert_script(self, revert_basename=None):
@@ -238,36 +238,34 @@ Quote=single""")
         if "nautilus" in to_integrate and not os.path.exists(paths["nautilus"]):
             os.makedirs(os.path.dirname(paths["nautilus"]), exist_ok=True)
             with open(paths["nautilus"], "w") as f:
-                f.write("/usr/bin/renametoix $NAUTILUS_SCRIPT_SELECTED_URIS " +
+                f.write("/usr/bin/renametoix $NAUTILUS_SCRIPT_SELECTED_URIS "
                         ">/tmp/nautilus-script.log 2>>/tmp/nautilus-script-err.log")
-                f.close()
             os.chmod(paths["nautilus"], stat.S_IEXEC | stat.S_IREAD | stat.S_IWRITE)
 
         if "thunar" in to_integrate:
             with open(paths["thunar"], "r+") as f:
                 content = f.read()
-                if not "renametoix" in content:
+                if "renametoix" not in content:
                     content = content.replace("</actions>", """<action>
-	<icon>/usr/share/icons/hicolor/scalable/apps/renametoix.svg</icon>
-	<name>RenameToIX</name>
-	<submenu></submenu>
-	<unique-id>1724283846660573-2</unique-id>
-	<command>/usr/bin/renametoix %F</command>
-	<description></description>
-	<range>*</range>
-	<patterns>*</patterns>
-	<directories/>
-	<audio-files/>
-	<image-files/>
-	<other-files/>
-	<text-files/>
-	<video-files/>
+\t<icon>/usr/share/icons/hicolor/scalable/apps/renametoix.svg</icon>
+\t<name>RenameToIX</name>
+\t<submenu></submenu>
+\t<unique-id>1724283846660573-2</unique-id>
+\t<command>/usr/bin/renametoix %F</command>
+\t<description></description>
+\t<range>*</range>
+\t<patterns>*</patterns>
+\t<directories/>
+\t<audio-files/>
+\t<image-files/>
+\t<other-files/>
+\t<text-files/>
+\t<video-files/>
 </action>
 </actions>""")
                     f.seek(0)
                     f.write(content)
                     f.truncate()
-                f.close()
 
 
 # ------------------------------------------------------------------------
@@ -307,7 +305,8 @@ class GUIRename(ConsoleRename):
         self.connect("revert_button", [[self.revert_dialog_clicked]])
         self.add_files_button = self.connect("add_files_button", [[self.add_files_button_clicked]])
         self.cancel_button = self.connect("cancel_button", [[self.close_window]])
-        self.cancel_button.set_label(_("Cancel"))  # @TODO: Determine why isn't ui translating this button
+        # @TODO: Determine why isn't ui translating this button
+        self.cancel_button.set_label(_("Cancel"))
         self.ok_button = self.connect("ok_button", [[self.ok_button_clicked]])
 
         self.files_list_store = self.builder.get_object("files_list_store")
@@ -461,8 +460,8 @@ class GUIRename(ConsoleRename):
         self.sort_column = column
 
     def macro_button_clicked(self, widget):
-        self.replace_entry.set_text((self.replace_entry.get_text().strip() +
-                                     f" {widget.get_label()}").strip())
+        self.replace_entry.set_text((self.replace_entry.get_text().strip()
+                                     + f" {widget.get_label()}").strip())
         self.update_renames()
 
     def open_revert_folder_button_clicked(self, widget):
@@ -549,7 +548,8 @@ class GUIRename(ConsoleRename):
 
     def notify_msg(self, msg=""):
         if self.cfg["send-notification"]:
-            os.system(f"command -v notify-send >/dev/null && notify-send -t 3000 '{msg}' > /dev/null 2>&1")
+            os.system("command -v notify-send >/dev/null && notify-send -t 3000 "
+                      f"'{msg}' > /dev/null 2>&1")
 
     def update_macro_widgets(self):
         macros = self.cfg["macros"]
