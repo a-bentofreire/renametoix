@@ -47,10 +47,10 @@ arg_parser.add_argument("-revert-last", action='store_true', default=False,
 arg_parser.add_argument("files", nargs="*", help=_("Files"))
 args = arg_parser.parse_args()
 
+
 # ------------------------------------------------------------------------
 #                               ConsoleRename
 # ------------------------------------------------------------------------
-
 
 class ConsoleRename(crenametoix.PureConsoleRename):
     def __init__(self, args):
@@ -79,7 +79,7 @@ class ConsoleRename(crenametoix.PureConsoleRename):
         return Gio.File.new_for_path(filename)
 
     def get_g_file_from_uri(self, uri):
-        return Gio.File.new_for_uri(uri) if "://" in uri else Gio.File.new_for_path(uri)
+        return Gio.File.new_for_commandline_arg(uri)
 
     def wait_until(self, callback):
         GLib.idle_add(callback, False)
@@ -108,7 +108,6 @@ class ConsoleRename(crenametoix.PureConsoleRename):
         if os.path.isfile(self.cfg_name):
             with io.open(self.cfg_name, "r", encoding="utf8") as input_file:
                 self.cfg = yaml.safe_load(input_file)
-            input_file.close()
 
     # Revert Files
 
@@ -138,7 +137,6 @@ class ConsoleRename(crenametoix.PureConsoleRename):
             if revert_script == self.get_revert_script():
                 with open(revert_script, "r") as f:
                     target_script = f.read().strip()
-                    f.close()
                 os.unlink(revert_script)
                 revert_script = target_script
             print(f"Execute {revert_script}")
@@ -154,9 +152,8 @@ class ConsoleRename(crenametoix.PureConsoleRename):
             self.revert_file.close()
             os.chmod(self.revert_name, stat.S_IEXEC | stat.S_IREAD | stat.S_IWRITE)
             main_revert_name = self.get_revert_script()
-            main_revert_file = open(main_revert_name, "w")
-            main_revert_file.write(f"{self.revert_name}\n")
-            main_revert_file.close()
+            with open(main_revert_name, "w") as main_revert_file:
+                main_revert_file.write(f"{self.revert_name}\n")
             os.chmod(main_revert_name, stat.S_IEXEC | stat.S_IREAD | stat.S_IWRITE)
 
     def get_revert_script(self, revert_basename=None):
@@ -233,7 +230,6 @@ Selection=notnone
 Extensions=any
 Name=RenameToIX
 Quote=single""")
-                f.close()
 
         if "nautilus" in to_integrate and not os.path.exists(paths["nautilus"]):
             os.makedirs(os.path.dirname(paths["nautilus"]), exist_ok=True)
@@ -303,6 +299,8 @@ class GUIRename(ConsoleRename):
         self.connect("about_button", [[self.about_button_clicked]])
         self.connect("settings_button", [[self.settings_button_clicked]])
         self.connect("revert_button", [[self.revert_dialog_clicked]])
+        self.connect("move_up_button", [[self.move_up_clicked]])
+        self.connect("move_down_button", [[self.move_down_clicked]])
         self.add_files_button = self.connect("add_files_button", [[self.add_files_button_clicked]])
         self.cancel_button = self.connect("cancel_button", [[self.close_window]])
         # @TODO: Determine why isn't ui translating this button
@@ -312,6 +310,7 @@ class GUIRename(ConsoleRename):
         self.files_list_store = self.builder.get_object("files_list_store")
         self.files_treeview = self.builder.get_object("files_treeview")
         self.files_treeview.connect("query-tooltip", self.on_query_tooltip)
+        self.files_treeview.connect("row-activated", self.on_row_activated)
         self.files_treeview.set_has_tooltip(True)
 
         def get_style_color(flag):
@@ -328,9 +327,14 @@ class GUIRename(ConsoleRename):
             0: "rgba(255, 0, 0, 1)"
         }
 
-        for i, column_title in enumerate([_("Path"), _("Before"), _("After")]):
-            renderer = Gtk.CellRendererText()
-            column = Gtk.TreeViewColumn(column_title, renderer, text=i)
+        for i, column_title in enumerate(["", _("Path"), _("Before"), _("After")]):
+            if i != 0:
+                renderer = Gtk.CellRendererText()
+                column = Gtk.TreeViewColumn(column_title, renderer, text=i)
+            else:
+                renderer = Gtk.CellRendererToggle()
+                column = Gtk.TreeViewColumn(column_title, renderer, active=i)
+                self.toggle_column = column
             column.set_cell_data_func(renderer, self.set_row_color, None)
             column.set_resizable(True)
             column.set_reorderable(True)
@@ -362,12 +366,40 @@ class GUIRename(ConsoleRename):
         self.replace_entry.set_text(self.args.replace)
         self.add_accelerators()
         self.add_source_files()
+
+        self.drop_box = self.files_treeview
+        entry_uri = Gtk.TargetEntry.new("text/uri-list", 0, 0)
+        entry_text = Gtk.TargetEntry.new("text/plain", 0, 0)
+        self.drop_box.drag_dest_set(Gtk.DestDefaults.ALL, (entry_uri, entry_text),
+                                    Gdk.DragAction.COPY)
+        self.drop_box.connect("drag-data-received", self.on_drag_data_received)
+
         screen = Gdk.Display.get_default().get_monitor(0).get_geometry()
         self.app_window.set_default_size(screen.width, screen.height - 100)
         self.app_window.connect("delete-event", Gtk.main_quit)
         self.app_window.show_all()
         self.ready = True
         self.update_renames()
+
+    # Events
+
+    def on_row_activated(self, treeview, path, column):
+        index = int(path.to_string())
+        self.files_list_store[index][0] = not self.files_list_store[index][0]
+        self.update_renames()
+
+    def on_drag_data_received(self, widget, context, x, y, data, info, _time, user_data=None):
+        if data:
+            dtype = data.get_data_type().name()
+            if context.get_selected_action() == Gdk.DragAction.COPY:
+                if dtype.startswith("text/uri-list"):
+                    uris = data.get_uris()
+                    self.add_files(uris)
+                elif dtype == "text/plain":
+                    text = data.get_text()
+                    self.add_files([text])
+
+        Gtk.drag_finish(context, True, False, _time)
 
     def on_query_tooltip(self, widget, x, y, _, tooltip):
         path, _, cx, cy = widget.get_path_at_pos(x, y) or (None, None, None, None)
@@ -380,44 +412,14 @@ class GUIRename(ConsoleRename):
                     return True
         return False
 
-    def add_accelerators(self):
-        accelerators = set()
-        for object_name in [
-            "find_label", "replace_label", "start_index_label",
-                "reg_ex_button", "include_ext_button", "ok_button", "cancel_button"
-        ]:
-            obj = self.builder.get_object(object_name)
-            caption = obj.get_text() if isinstance(obj, Gtk.Label) else obj.get_label()
-            index = 0
-            while caption[index].lower() in accelerators:
-                index += 1
-            caption = caption[0:index] + "_" + caption[index:]
-            accelerators.add(caption[index + 1].lower())
-            if isinstance(obj, Gtk.Label):
-                obj.set_text(caption)
-                obj.set_mnemonic_widget(obj.get_accel_widget())
-            else:
-                obj.set_label(caption)
-            obj.set_use_underline(True)
-
-    def append_new_default_macros(self):
-        last_macro = self.default_macros[-1]
-        if self.cfg.get("last-macro") != last_macro:
-            self.cfg["last-macro"] = last_macro
-            for macro in self.default_macros:
-                if macro not in self.cfg["macros"]:
-                    self.cfg["macros"].append(macro)
-            self.save_cfg()
-
-    # Events
-
     def set_row_color(self, column, cell, model, tree_iter, user_data):
         path = model[tree_iter].path
         if path is not None:
             row_index = path.get_indices()[0]
             state = self.files_state[row_index]
             color = self.row_colors.get(state) or self.row_colors[0]
-            cell.set_property("foreground", color)
+            if column != self.toggle_column:
+                cell.set_property("foreground", color)
 
     def about_button_clicked(self, widget):
         self.about_dialog.run()
@@ -470,6 +472,12 @@ class GUIRename(ConsoleRename):
     def ok_button_clicked(self, widget):
         self.apply_renames()
         self.close_window()
+
+    def move_up_clicked(self, widget):
+        self.move_files(-1)
+
+    def move_down_clicked(self, widget):
+        self.move_files(1)
 
     def revert_dialog_clicked(self, widget):
         self.populate_revert_list_store(self.builder.get_object("revert_list_store"))
@@ -524,6 +532,35 @@ class GUIRename(ConsoleRename):
 
     # Methods
 
+    def add_accelerators(self):
+        accelerators = set()
+        for object_name in [
+            "find_label", "replace_label", "start_index_label",
+                "reg_ex_button", "include_ext_button", "ok_button", "cancel_button"
+        ]:
+            obj = self.builder.get_object(object_name)
+            caption = obj.get_text() if isinstance(obj, Gtk.Label) else obj.get_label()
+            index = 0
+            while caption[index].lower() in accelerators:
+                index += 1
+            caption = caption[0:index] + "_" + caption[index:]
+            accelerators.add(caption[index + 1].lower())
+            if isinstance(obj, Gtk.Label):
+                obj.set_text(caption)
+                obj.set_mnemonic_widget(obj.get_accel_widget())
+            else:
+                obj.set_label(caption)
+            obj.set_use_underline(True)
+
+    def append_new_default_macros(self):
+        last_macro = self.default_macros[-1]
+        if self.cfg.get("last-macro") != last_macro:
+            self.cfg["last-macro"] = last_macro
+            for macro in self.default_macros:
+                if macro not in self.cfg["macros"]:
+                    self.cfg["macros"].append(macro)
+            self.save_cfg()
+
     def apply_renames(self):
         if self.allow_renames:
             self.console_apply_renames(allow_revert=self.cfg["allow-revert"], is_silent=True)
@@ -546,10 +583,33 @@ class GUIRename(ConsoleRename):
             object.connect(event[1] if len(event) == 2 else "clicked", event[0])
         return object
 
+    def move_files(self, direction):
+        model, tree_iter = self.files_treeview.get_selection().get_selected()
+        if tree_iter is not None:
+            index = model.get_path(tree_iter).get_indices()[0]
+            new_index = index + direction
+            if 0 <= new_index < len(self.files_list_store):
+                self.files.insert(new_index, self.files.pop(index))
+                self.files_state.insert(new_index, self.files_state.pop(index))
+                model.swap(tree_iter, model.get_iter((new_index,)))
+                self.files_treeview.set_cursor(model.get_path(tree_iter))
+                self.update_renames()
+
     def notify_msg(self, msg=""):
         if self.cfg["send-notification"]:
             os.system("command -v notify-send >/dev/null && notify-send -t 3000 "
                       f"'{msg}' > /dev/null 2>&1")
+
+    def save_cfg(self):
+        cfg_path = os.path.dirname(self.cfg_name)
+        if not os.path.isdir(cfg_path):
+            os.makedirs(cfg_path)
+        with open(self.cfg_name, "wt", encoding="utf8") as output_file:
+            output_file.write(yaml.dump(self.cfg, default_flow_style=False, sort_keys=False,
+                                        allow_unicode=True, encoding="utf-8",
+                                        width=200).decode("utf-8"))
+        if self.ready:
+            self.update_macro_widgets()
 
     def update_macro_widgets(self):
         macros = self.cfg["macros"]
@@ -565,12 +625,6 @@ class GUIRename(ConsoleRename):
             menuitem.set_tooltip_text(tooltip)
             menuitem.connect("activate", self.macro_button_clicked)
             macros_popup.append(menuitem)
-
-    def visual_allow_renames(self, enabled):
-        self.ok_button.set_sensitive(enabled)
-        self.files_treeview.queue_draw()
-        self.files_treeview.set_sensitive(enabled)
-        self.add_files_button.set_sensitive(not self.thread_running)
 
     def update_rename_ready(self, is_sync):
         self.ready = True
@@ -590,17 +644,10 @@ class GUIRename(ConsoleRename):
             self.visual_allow_renames(False)
             self.init_plugins(self.replace_entry.get_text(), self.update_rename_ready, False)
 
-    def save_cfg(self):
-        cfg_path = os.path.dirname(self.cfg_name)
-        if not os.path.isdir(cfg_path):
-            os.makedirs(cfg_path)
-        with open(self.cfg_name, "wt", encoding="utf8") as output_file:
-            output_file.write(yaml.dump(self.cfg, default_flow_style=False, sort_keys=False,
-                                        allow_unicode=True, encoding="utf-8",
-                                        width=200).decode("utf-8"))
-            output_file.close()
-        if self.ready:
-            self.update_macro_widgets()
+    def visual_allow_renames(self, enabled):
+        self.ok_button.set_sensitive(enabled)
+        self.files_treeview.queue_draw()
+        self.add_files_button.set_sensitive(not self.thread_running)
 
 
 if not args.console and not args.revert_last:

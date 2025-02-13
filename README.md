@@ -36,6 +36,8 @@ If you find this project useful, please, read the [Support this Project](#suppor
 - Custom macro extensions using [plugins](#plugins).
 - Start index for counter macro.
 - Configurable list of macros.
+- Drag'n'Drop.
+- Move files up and down.
 
 - Revert previous renames (first activate on Settings dialog). (¹)
 - Send notification after renames (first activate on Settings dialog). (¹)

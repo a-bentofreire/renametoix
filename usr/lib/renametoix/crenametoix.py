@@ -174,8 +174,8 @@ class PureConsoleRename(G_FileBridge):
         return text
 
     def set_file_index_new_name(self, index, new_name=None):
-        self.files_list_store[index][2] = new_name if new_name is not None \
-            else self.files_list_store[index][1]
+        self.files_list_store[index][3] = new_name if new_name is not None \
+            else self.files_list_store[index][2]
 
     def generate_new_names(self, start_index, is_reg_ex, include_ext, find, replace):
         new_filenames = {}
@@ -189,6 +189,8 @@ class PureConsoleRename(G_FileBridge):
 
         try:
             for index, filename in enumerate(self.files):
+                if not self.files_list_store[index][0]:
+                    continue
                 g_file = self.get_g_file(filename)
                 basename = g_file.get_basename()
                 dirname = g_file.get_parent().get_path() if g_file.has_parent() else ""
@@ -241,7 +243,7 @@ class PureConsoleRename(G_FileBridge):
             STATE_EMPTY: _("Empty"),
             STATE_NOT_CHANGED: _("Not changed"),
             STATE_RENAMED: _("Renamed")
-        }.get(state, _("Conflicts with file") + (": %s" % self.files_list_store[state][1]))
+        }.get(state, _("Conflicts with file") + (": %s" % self.files_list_store[state][2]))
 
     def add_files(self, uris):
         for uri in uris:
@@ -250,7 +252,7 @@ class PureConsoleRename(G_FileBridge):
             if g_file.query_exists() and filename not in self.files:
                 basename = g_file.get_basename()
                 self.files_list_store.append(
-                    [g_file.get_parent().get_path() if g_file.has_parent() else "",
+                    [True, g_file.get_parent().get_path() if g_file.has_parent() else "",
                      basename, basename])
                 self.files.append(filename)
                 self.files_state.append(STATE_NOT_CHANGED)

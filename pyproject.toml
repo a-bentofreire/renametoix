@@ -1,6 +1,6 @@
 [project]
 name = "crenametoix"
-version = "1.4.1"
+version = "1.5.0"
 authors = [
   { name="Alexandre Bento Freire", email="devtoix@a-bentofreire.com" },
 ]
@@ -24,3 +24,6 @@ Issues = "https://github.com/a-bentofreire/renametoix/issues"
 Changelog = "https://github.com/a-bentofreire/renametoix/blob/HEAD/CHANGELOG.md"
 Twitter = "https://x.com/devtoix"
 
+[tool.setuptools]
+package-dir = {"" = "src"}
+packages.find.where = ["src"]
