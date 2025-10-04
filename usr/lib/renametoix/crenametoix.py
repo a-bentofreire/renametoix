@@ -23,9 +23,11 @@ STATE_EMPTY = -3
 STATE_NOT_CHANGED = -2
 STATE_RENAMED = -1
 
+get_text_callback = None
+
 
 def _(text):
-    return text
+    return text if not get_text_callback else get_text_callback(text)
 
 
 macros_functions = {
@@ -38,6 +40,33 @@ macros_functions = {
     "title": lambda m: m.title(),
     "t": lambda m: m.title()
 }
+
+macros = {
+    "%0n": "Sequential number padded to 1 digit (e.g., 1, 2, 3…)",
+    "%00n": "Sequential number padded to 2 digits (e.g., 01, 02, 03…)",
+    "%000n": "Sequential number padded to 3 digits (e.g., 001, 002, 003…)",
+
+    "%Y-%m-%d": "File's last modification date in format YYYY-MM-DD",
+    "%Y-%m-%d-%H_%M_%S": "File's last modification date and time in format YYYY-MM-DD-HH_MM_SS",
+    "%Y-%m-%d %H_%M_%S": "File's last modification date and time in format YYYY-MM-DD HH_MM_SS",
+
+    "%0{upper}": "First regex group converted to UPPERCASE",
+    "%0{lower}": "First regex group converted to lowercase",
+    "%0{capitalize}": "First regex group Capitalized",
+
+    "%1{upper}": "Second regex group converted to UPPERCASE",
+    "%1{lower}": "Second regex group converted to lowercase",
+    "%1{capitalize}": "Second regex group Capitalized",
+
+    "%:{m[0]}": "Evaluate Python expression with regex match groups (e.g., m[0] = full match)",
+
+    "%!{geo:%country%, %city%}": "Insert geographic metadata from plugin (country and city)",
+    "%!{doc:%header%}": "Insert document metadata from plugin (header field)",
+
+    "%B": "Original filename without extension",
+    "%E": "Original file extension (including dot, e.g., .txt)",
+}
+
 
 console_mode_text = _("Console Mode")
 
@@ -55,6 +84,12 @@ def add_arguments(arg_parser):
     arg_parser.add_argument("-test-mode", action='store_true', default=False,
                             help="%s (%s)" % (_("Outputs only the new result, doesn't rename"),
                                               console_mode_text))
+
+
+def format_macros_help():
+    return "\n" + _("Macros") + ":\n" + "\n".join(
+        f"  {macro:20} {_(desc)}" for macro, desc in macros.items()
+    )
 
 
 # ------------------------------------------------------------------------
@@ -360,11 +395,23 @@ class PureConsoleRename(G_FileBridge):
             self.demon.start()
 
 
-def run_as_package():
-    arg_parser = argparse.ArgumentParser()
-    add_arguments(arg_parser)
+def get_argument_parser():
+    arg_parser = argparse.ArgumentParser(
+        epilog=format_macros_help(),
+        formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+    return arg_parser
+
+
+def get_args_from_parse(arg_parser):
     arg_parser.add_argument("files", nargs="*", help=_("Files"))
-    args = arg_parser.parse_args()
+    return arg_parser.parse_args()
+
+
+def run_as_package():
+    arg_parser = get_argument_parser()
+    add_arguments(arg_parser)
+    args = get_args_from_parse(arg_parser)
     PureConsoleRename(args).console_mode_rename()
 
 

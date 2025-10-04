@@ -70,20 +70,32 @@ def update_ui_version():
 #                               prepare_pip
 # ------------------------------------------------------------------------
 
+CHANGELOG_FILE = 'debian-crenametoix/changelog'
+
 def prepare_pip(update_version):
     if update_version:
-        if not (match := re.search(r'^crenametoix \(([0-9\.]+)\)',
-                                   read_file('debian-crenametoix/changelog'))):
+        changelog_content = read_file(CHANGELOG_FILE)
+
+        match = re.search(r'^(c?)renametoix \(([0-9\.]+)\)', changelog_content)
+        if not match:
             print("No version on changelog.")
             return False
-        version = match.group(1)
+
+        if match.group(1) == "":
+            fixed_content = re.sub(r'^renametoix', 'crenametoix', changelog_content, count=1)
+            write_file(CHANGELOG_FILE, fixed_content)
+            print(f"Fixed package name in {CHANGELOG_FILE}")
+
+        version = match.group(2)
         print(f"Version: {version}")
+
         toml_filename = 'pyproject.toml'
         content = re.sub(r'(version = ")[0-9\.]+(")',
                          lambda m: m.group(1) + version + m.group(2),
                          read_file(toml_filename))
         write_file(toml_filename, content)
         print(f"{toml_filename} version updated")
+
     os.chdir(project_root)
     shutil.rmtree('src', ignore_errors=True)
     os.makedirs('src/crenametoix/plugins', exist_ok=True)

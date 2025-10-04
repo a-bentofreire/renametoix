@@ -174,5 +174,62 @@ msgstr "Not changed"
 msgid "Renamed"
 msgstr "Renamed"
 
+msgid "Moves Up"
+msgstr "Moves Up"
+
+msgid "Moves Down"
+msgstr "Moves Down"
+
 msgid "Conflicts with file"
 msgstr "Conflicts with file"
+
+msgid "Sequential number padded to 1 digit (e.g., 1, 2, 3…)"
+msgstr "Sequential number padded to 1 digit (e.g., 1, 2, 3…)"
+
+msgid "Sequential number padded to 2 digits (e.g., 01, 02, 03…)"
+msgstr "Sequential number padded to 2 digits (e.g., 01, 02, 03…)"
+
+msgid "Sequential number padded to 3 digits (e.g., 001, 002, 003…)"
+msgstr "Sequential number padded to 3 digits (e.g., 001, 002, 003…)"
+
+msgid "File's last modification date in format YYYY-MM-DD"
+msgstr "File's last modification date in format YYYY-MM-DD"
+
+msgid "File's last modification date and time in format YYYY-MM-DD-HH_MM_SS"
+msgstr "File's last modification date and time in format YYYY-MM-DD-HH_MM_SS"
+
+msgid "File's last modification date and time in format YYYY-MM-DD HH_MM_SS"
+msgstr "File's last modification date and time in format YYYY-MM-DD HH_MM_SS"
+
+msgid "First regex group converted to UPPERCASE"
+msgstr "First regex group converted to UPPERCASE"
+
+msgid "First regex group converted to lowercase"
+msgstr "First regex group converted to lowercase"
+
+msgid "First regex group Capitalized"
+msgstr "First regex group Capitalized"
+
+msgid "Second regex group converted to UPPERCASE"
+msgstr "Second regex group converted to UPPERCASE"
+
+msgid "Second regex group converted to lowercase"
+msgstr "Second regex group converted to lowercase"
+
+msgid "Second regex group Capitalized"
+msgstr "Second regex group Capitalized"
+
+msgid "Evaluate Python expression with regex match groups (e.g., m[0] = full match)"
+msgstr "Evaluate Python expression with regex match groups (e.g., m[0] = full match)"
+
+msgid "Insert geographic metadata from plugin (country and city)"
+msgstr "Insert geographic metadata from plugin (country and city)"
+
+msgid "Insert document metadata from plugin (header field)"
+msgstr "Insert document metadata from plugin (header field)"
+
+msgid "Original filename without extension"
+msgstr "Original filename without extension"
+
+msgid "Original file extension (including dot, e.g., .txt)"
+msgstr "Original file extension (including dot, e.g., .txt)"

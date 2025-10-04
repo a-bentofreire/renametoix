@@ -11,7 +11,6 @@
 import io
 import os
 import re
-import argparse
 import setproctitle
 import stat
 import sys
@@ -28,15 +27,19 @@ from gi.repository import Gtk, Gdk, GLib, Gio
 
 APP = 'renametoix'
 LOCALE_DIR = "/usr/share/locale"
+# APP_ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), '..', '..'))
+# if os.path.exists(f"{APP_ROOT_DIR}/share/locale"):
+#     LOCALE_DIR = f"{APP_ROOT_DIR}/share/locale"
 locale.bindtextdomain(APP, LOCALE_DIR)
 gettext.bindtextdomain(APP, LOCALE_DIR)
 gettext.textdomain(APP)
 _ = gettext.gettext
+crenametoix.get_text_callback = _
 
 REVERT_RENAME_SH = "revert-rename.sh"
 
 console_mode_text = _("Console Mode")
-arg_parser = argparse.ArgumentParser()
+arg_parser = crenametoix.get_argument_parser()
 arg_parser.add_argument("-console", action='store_true', default=False,
                         help=console_mode_text)  # noqa
 crenametoix.add_arguments(arg_parser)
@@ -44,8 +47,7 @@ arg_parser.add_argument("-allow-revert", action='store_true', default=False,
                         help="%s (%s)" % (_("Generates a revert script"), console_mode_text))
 arg_parser.add_argument("-revert-last", action='store_true', default=False,
                         help=_("Reverts last rename and exits"))
-arg_parser.add_argument("files", nargs="*", help=_("Files"))
-args = arg_parser.parse_args()
+args = crenametoix.get_args_from_parse(arg_parser)
 
 
 # ------------------------------------------------------------------------
@@ -60,15 +62,7 @@ class ConsoleRename(crenametoix.PureConsoleRename):
             "revert-path": os.path.join(os.environ["HOME"], ".revert-renames"),
             "allow-revert": False,
             "send-notification": False,
-            "macros": [
-                "%0n", "%00n", "%000n", "%Y-%m-%d", "%Y-%m-%d-%H_%M_%S", "%Y-%m-%d %H_%M_%S",
-                "%0{upper}", "%0{lower}", "%0{capitalize}",
-                "%1{upper}", "%1{lower}", "%1{capitalize}",
-                "%:{m[0]}",
-                "%!{geo:%country%, %city%}",
-                "%!{doc:%header%}",
-                "%B", "%E",
-            ]
+            "macros": list(crenametoix.macros.keys())
         }
         self.default_macros = self.cfg["macros"]
         self.cfg_name = os.path.join(GLib.get_user_config_dir(), 'renametoix', 'renametoix.yaml')
@@ -83,7 +77,6 @@ class ConsoleRename(crenametoix.PureConsoleRename):
 
     def wait_until(self, callback):
         GLib.idle_add(callback, False)
-        pass
 
     def rename_file(self, g_source, g_dest, is_native):
         if is_native:
@@ -622,7 +615,8 @@ class GUIRename(ConsoleRename):
         tooltip = macro_button.get_tooltip_text()
         for macro in macros:
             menuitem = Gtk.MenuItem(label=macro, visible=True)
-            menuitem.set_tooltip_text(tooltip)
+            macro_description = crenametoix.macros.get(macro)
+            menuitem.set_tooltip_text(_(macro_description) if macro_description else tooltip)
             menuitem.connect("activate", self.macro_button_clicked)
             macros_popup.append(menuitem)
 

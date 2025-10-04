@@ -174,5 +174,62 @@ msgstr "Не изменено"
 msgid "Renamed"
 msgstr "Переименовано"
 
+msgid "Moves Up"
+msgstr "Переместить вверх"
+
+msgid "Moves Down"
+msgstr "Переместить вниз"
+
 msgid "Conflicts with file"
 msgstr "Конфликтует с файлом"
+
+msgid "Sequential number padded to 1 digit (e.g., 1, 2, 3…)"
+msgstr "Последовательный номер с заполнением до 1 цифры (например, 1, 2, 3…)"
+
+msgid "Sequential number padded to 2 digits (e.g., 01, 02, 03…)"
+msgstr "Последовательный номер с заполнением до 2 цифр (например, 01, 02, 03…)"
+
+msgid "Sequential number padded to 3 digits (e.g., 001, 002, 003…)"
+msgstr "Последовательный номер с заполнением до 3 цифр (например, 001, 002, 003…)"
+
+msgid "File's last modification date in format YYYY-MM-DD"
+msgstr "Дата последнего изменения файла в формате ГГГГ-ММ-ДД"
+
+msgid "File's last modification date and time in format YYYY-MM-DD-HH_MM_SS"
+msgstr "Дата и время последнего изменения файла в формате ГГГГ-ММ-ДД-ЧЧ_ММ_СС"
+
+msgid "File's last modification date and time in format YYYY-MM-DD HH_MM_SS"
+msgstr "Дата и время последнего изменения файла в формате ГГГГ-ММ-ДД ЧЧ_ММ_СС"
+
+msgid "First regex group converted to UPPERCASE"
+msgstr "Первая группа regex преобразована в ВЕРХНИЙ РЕГИСТР"
+
+msgid "First regex group converted to lowercase"
+msgstr "Первая группа regex преобразована в нижний регистр"
+
+msgid "First regex group Capitalized"
+msgstr "Первая группа regex с Заглавной Буквой"
+
+msgid "Second regex group converted to UPPERCASE"
+msgstr "Вторая группа regex преобразована в ВЕРХНИЙ РЕГИСТР"
+
+msgid "Second regex group converted to lowercase"
+msgstr "Вторая группа regex преобразована в нижний регистр"
+
+msgid "Second regex group Capitalized"
+msgstr "Вторая группа regex с Заглавной Буквой"
+
+msgid "Evaluate Python expression with regex match groups (e.g., m[0] = full match)"
+msgstr "Вычислить выражение Python с группами regex (например, m[0] = полное совпадение)"
+
+msgid "Insert geographic metadata from plugin (country and city)"
+msgstr "Вставить географические метаданные из плагина (страна и город)"
+
+msgid "Insert document metadata from plugin (header field)"
+msgstr "Вставить метаданные документа из плагина (поле заголовка)"
+
+msgid "Original filename without extension"
+msgstr "Исходное имя файла без расширения"
+
+msgid "Original file extension (including dot, e.g., .txt)"
+msgstr "Исходное расширение файла (включая точку, напр. .txt)"

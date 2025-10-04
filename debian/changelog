@@ -1,3 +1,11 @@
+renametoix (1.5.1) noble; urgency=low
+
+  * Output macros name and description on help
+  * Use individual macro menu item tooltip
+  * Improve translations
+
+ -- Alexandre Bento Freire <dev@a-bentofreire.com>  Sat, 04 Oct 2025 11:52:01 +0000
+
 renametoix (1.5.0) noble; urgency=low
 
   * Add drag'n'drop support

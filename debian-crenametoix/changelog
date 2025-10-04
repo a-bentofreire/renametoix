@@ -1,3 +1,9 @@
+crenametoix (1.5.1) noble; urgency=low
+
+  * Output macros name and description on help
+
+ -- Alexandre Bento Freire <dev@a-bentofreire.com>  Fri, 26 Sep 2025 10:51:41 +0000
+
 crenametoix (1.5.0) noble; urgency=low
 
   * Internal changes to support renametoix new features

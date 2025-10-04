@@ -176,3 +176,60 @@ msgstr "Umbenannt"
 
 msgid "Conflicts with file"
 msgstr "Konflikte mit Datei"
+
+msgid "Moves Up"
+msgstr "Nach oben verschieben"
+
+msgid "Moves Down"
+msgstr "Nach unten verschieben"
+
+msgid "Sequential number padded to 1 digit (e.g., 1, 2, 3…)"
+msgstr "Sequenznummer auf 1 Stelle aufgefüllt (z. B. 1, 2, 3…)"
+
+msgid "Sequential number padded to 2 digits (e.g., 01, 02, 03…)"
+msgstr "Sequenznummer auf 2 Stellen aufgefüllt (z. B. 01, 02, 03…)"
+
+msgid "Sequential number padded to 3 digits (e.g., 001, 002, 003…)"
+msgstr "Sequenznummer auf 3 Stellen aufgefüllt (z. B. 001, 002, 003…)"
+
+msgid "File's last modification date in format YYYY-MM-DD"
+msgstr "Letztes Änderungsdatum der Datei im Format JJJJ-MM-TT"
+
+msgid "File's last modification date and time in format YYYY-MM-DD-HH_MM_SS"
+msgstr "Letztes Änderungsdatum und Uhrzeit der Datei im Format JJJJ-MM-TT-HH_MM_SS"
+
+msgid "File's last modification date and time in format YYYY-MM-DD HH_MM_SS"
+msgstr "Letztes Änderungsdatum und Uhrzeit der Datei im Format JJJJ-MM-TT HH_MM_SS"
+
+msgid "First regex group converted to UPPERCASE"
+msgstr "Erste Regex-Gruppe in GROSSBUCHSTABEN umgewandelt"
+
+msgid "First regex group converted to lowercase"
+msgstr "Erste Regex-Gruppe in Kleinbuchstaben umgewandelt"
+
+msgid "First regex group Capitalized"
+msgstr "Erste Regex-Gruppe mit Großbuchstabe am Anfang"
+
+msgid "Second regex group converted to UPPERCASE"
+msgstr "Zweite Regex-Gruppe in GROSSBUCHSTABEN umgewandelt"
+
+msgid "Second regex group converted to lowercase"
+msgstr "Zweite Regex-Gruppe in Kleinbuchstaben umgewandelt"
+
+msgid "Second regex group Capitalized"
+msgstr "Zweite Regex-Gruppe mit Großbuchstabe am Anfang"
+
+msgid "Evaluate Python expression with regex match groups (e.g., m[0] = full match)"
+msgstr "Python-Ausdruck mit Regex-Gruppen auswerten (z. B. m[0] = vollständiger Treffer)"
+
+msgid "Insert geographic metadata from plugin (country and city)"
+msgstr "Geografische Metadaten aus Plugin einfügen (Land und Stadt)"
+
+msgid "Insert document metadata from plugin (header field)"
+msgstr "Dokument-Metadaten aus Plugin einfügen (Header-Feld)"
+
+msgid "Original filename without extension"
+msgstr "Ursprünglicher Dateiname ohne Erweiterung"
+
+msgid "Original file extension (including dot, e.g., .txt)"
+msgstr "Ursprüngliche Dateierweiterung (einschließlich Punkt, z. B. .txt)"
