@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.5.2] - 2026-02-10
+
+- Change to code formatting using Black
+- Change to Lint using ruff
+- Change Description in desktop file into Comment
+
 ## [1.5.1] - 2025-09-26
 - Output macros name and description on help
 

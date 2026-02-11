@@ -1,4 +1,7 @@
 # Description
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Linted with Ruff](https://img.shields.io/badge/linted%20with-ruff-red.svg)](https://github.com/astral-sh/ruff)
+[![Tests: pytest](https://img.shields.io/badge/tests-pytest-blue.svg)](https://github.com/pytest-dev/pytest)
 
 [RenameToIX](https://www.devtoix.com/en/projects/renametoix) is a visual Linux Gtk file renamer featuring an advanced macro ecosystem, seamlessly integrating with Nemo, Nautilus, and Thunar file managers.
 
@@ -266,4 +269,4 @@ GPLv3 License
 
 ## Copyrights
 
-(c) 2024-2025 [Alexandre Bento Freire](https://www.a-bentofreire.com)
+(c) 2024-2026 [Alexandre Bento Freire](https://www.a-bentofreire.com)

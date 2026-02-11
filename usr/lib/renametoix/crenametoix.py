@@ -3,7 +3,7 @@
 # -*- coding: UTF-8 -*-
 
 # ------------------------------------------------------------------------
-# Copyright (c) 2024-2025 Alexandre Bento Freire. All rights reserved.
+# Copyright (c) 2024-2026 Alexandre Bento Freire. All rights reserved.
 # Licensed under the GPLv3 License.
 # ------------------------------------------------------------------------
 
@@ -16,7 +16,7 @@ import time
 import threading
 import importlib
 
-sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)), 'plugins'))
+sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)), "plugins"))
 
 STATE_ALREADY_EXISTS = -4
 STATE_EMPTY = -3
@@ -38,31 +38,25 @@ macros_functions = {
     "capitalize": lambda m: m.capitalize(),
     "c": lambda m: m.capitalize(),
     "title": lambda m: m.title(),
-    "t": lambda m: m.title()
+    "t": lambda m: m.title(),
 }
 
 macros = {
     "%0n": "Sequential number padded to 1 digit (e.g., 1, 2, 3…)",
     "%00n": "Sequential number padded to 2 digits (e.g., 01, 02, 03…)",
     "%000n": "Sequential number padded to 3 digits (e.g., 001, 002, 003…)",
-
     "%Y-%m-%d": "File's last modification date in format YYYY-MM-DD",
     "%Y-%m-%d-%H_%M_%S": "File's last modification date and time in format YYYY-MM-DD-HH_MM_SS",
     "%Y-%m-%d %H_%M_%S": "File's last modification date and time in format YYYY-MM-DD HH_MM_SS",
-
     "%0{upper}": "First regex group converted to UPPERCASE",
     "%0{lower}": "First regex group converted to lowercase",
     "%0{capitalize}": "First regex group Capitalized",
-
     "%1{upper}": "Second regex group converted to UPPERCASE",
     "%1{lower}": "Second regex group converted to lowercase",
     "%1{capitalize}": "Second regex group Capitalized",
-
     "%:{m[0]}": "Evaluate Python expression with regex match groups (e.g., m[0] = full match)",
-
     "%!{geo:%country%, %city%}": "Insert geographic metadata from plugin (country and city)",
     "%!{doc:%header%}": "Insert document metadata from plugin (header field)",
-
     "%B": "Original filename without extension",
     "%E": "Original file extension (including dot, e.g., .txt)",
 }
@@ -72,37 +66,54 @@ console_mode_text = _("Console Mode")
 
 
 def add_arguments(arg_parser):
-    arg_parser.add_argument("-start-index", type=int, default=1,
-                            help=_("Start index used with there is a %0n macro").replace("%", "%%")
-                            )  # noqa
-    arg_parser.add_argument("-reg-ex", action='store_true', default=False,
-                            help=_("Uses regular expressions on the find field"))  # noqa
-    arg_parser.add_argument("-include-ext", action='store_true', default=False,
-                            help=_("Renames including the file extension"))
+    arg_parser.add_argument(
+        "-start-index",
+        type=int,
+        default=1,
+        help=_("Start index used with there is a %0n macro").replace("%", "%%"),
+    )  # noqa
+    arg_parser.add_argument(
+        "-reg-ex",
+        action="store_true",
+        default=False,
+        help=_("Uses regular expressions on the find field"),
+    )  # noqa
+    arg_parser.add_argument(
+        "-include-ext",
+        action="store_true",
+        default=False,
+        help=_("Renames including the file extension"),
+    )
     arg_parser.add_argument("-find", default="", help=_("Text to Find"))
     arg_parser.add_argument("-replace", default="", help=_("Text to Replace"))
-    arg_parser.add_argument("-test-mode", action='store_true', default=False,
-                            help="%s (%s)" % (_("Outputs only the new result, doesn't rename"),
-                                              console_mode_text))
+    arg_parser.add_argument(
+        "-test-mode",
+        action="store_true",
+        default=False,
+        help="%s (%s)"
+        % (_("Outputs only the new result, doesn't rename"), console_mode_text),
+    )
 
 
 def format_macros_help():
-    return "\n" + _("Macros") + ":\n" + "\n".join(
-        f"  {macro:20} {_(desc)}" for macro, desc in macros.items()
+    return (
+        "\n"
+        + _("Macros")
+        + ":\n"
+        + "\n".join(f"  {macro:20} {_(desc)}" for macro, desc in macros.items())
     )
 
 
 # ------------------------------------------------------------------------
 #                               Plugin
 # ------------------------------------------------------------------------
-
 class Plugin:
     def __init__(self, plugin_name):
         self.is_slow = False
         try:
             self.worker = importlib.import_module(plugin_name).get_worker()
             self.extensions = self.worker.get_extensions()
-        except:
+        except Exception:
             self.worker = None
 
     def set_new_files(self, new_files):
@@ -112,16 +123,21 @@ class Plugin:
                 self.is_slow = self.is_slow or self.worker.is_slow()
 
     def filter_by_extension(self, files):
-        return list(
-            filter(lambda f: os.path.splitext(f)[1].lower()
-                   in self.extensions, files)) if self.extensions and self.worker else files
+        return (
+            list(
+                filter(
+                    lambda f: os.path.splitext(f)[1].lower() in self.extensions, files
+                )
+            )
+            if self.extensions and self.worker
+            else files
+        )
 
 
 # ------------------------------------------------------------------------
 #                               G_File
 # ------------------------------------------------------------------------
-
-class G_File():
+class G_File:
     def __init__(self, filename):
         self.filename = filename
 
@@ -147,14 +163,13 @@ class G_File():
 # ------------------------------------------------------------------------
 #                               G_FileBridge
 # ------------------------------------------------------------------------
-
 class G_FileBridge:
     def get_g_file(self, filename):
         return G_File(filename)
 
     def get_g_file_from_uri(self, uri):
         at = uri.find("://")
-        return self.get_g_file(uri[at + 3:]) if at >= 0 else self.get_g_file(uri)
+        return self.get_g_file(uri[at + 3 :]) if at >= 0 else self.get_g_file(uri)
 
     def rename_file(self, g_source, g_dest, is_native):
         os.rename(g_source.get_path(), g_dest.get_path())
@@ -163,7 +178,6 @@ class G_FileBridge:
 # ------------------------------------------------------------------------
 #                               ConRename
 # ------------------------------------------------------------------------
-
 class PureConsoleRename(G_FileBridge):
 
     def __init__(self, args):
@@ -190,18 +204,29 @@ class PureConsoleRename(G_FileBridge):
     def run_python_expr(self, script, groups):
         try:
             return eval(f"lambda m: {script}")(groups)
-        except:
+        except Exception:
             return groups(0)
 
     def apply_macros(self, text, start_index, filename, groups):
-        text = re.sub(r"%(\d*)n", lambda m: "%0*d" % (len(m.group(1)) + 1, start_index), text)
-        text = re.sub(r"%(\d)\{([a-z]+)\}", lambda m: self.macro_functions(
-            int(m.group(1)), m.group(2), groups), text)
-        text = re.sub(r"%:\{([^}]+)\}", lambda m: self.run_python_expr(m.group(1), groups), text)
-        text = re.sub(r"%!\{(\w+):([^}]+)\}", lambda m:
-                      self.run_plugin_expr(m.group(1), m.group(2), filename, groups), text)
-        stamp_parts = time.strftime("%Y_%m_%d_%H_%M_%S",
-                                    time.localtime(os.path.getmtime(filename))).split("_")
+        text = re.sub(
+            r"%(\d*)n", lambda m: "%0*d" % (len(m.group(1)) + 1, start_index), text
+        )
+        text = re.sub(
+            r"%(\d)\{([a-z]+)\}",
+            lambda m: self.macro_functions(int(m.group(1)), m.group(2), groups),
+            text,
+        )
+        text = re.sub(
+            r"%:\{([^}]+)\}", lambda m: self.run_python_expr(m.group(1), groups), text
+        )
+        text = re.sub(
+            r"%!\{(\w+):([^}]+)\}",
+            lambda m: self.run_plugin_expr(m.group(1), m.group(2), filename, groups),
+            text,
+        )
+        stamp_parts = time.strftime(
+            "%Y_%m_%d_%H_%M_%S", time.localtime(os.path.getmtime(filename))
+        ).split("_")
         for index, macro_name in enumerate("YmdHMS"):
             text = text.replace(f"%{macro_name}", stamp_parts[index])
         basename, ext = os.path.splitext(os.path.basename(filename))
@@ -209,8 +234,9 @@ class PureConsoleRename(G_FileBridge):
         return text
 
     def set_file_index_new_name(self, index, new_name=None):
-        self.files_list_store[index][3] = new_name if new_name is not None \
-            else self.files_list_store[index][2]
+        self.files_list_store[index][3] = (
+            new_name if new_name is not None else self.files_list_store[index][2]
+        )
 
     def generate_new_names(self, start_index, is_reg_ex, include_ext, find, replace):
         new_filenames = {}
@@ -229,11 +255,15 @@ class PureConsoleRename(G_FileBridge):
                 g_file = self.get_g_file(filename)
                 basename = g_file.get_basename()
                 dirname = g_file.get_parent().get_path() if g_file.has_parent() else ""
-                from_text, ext = os.path.splitext(basename) \
-                    if not include_ext else (basename, None)
+                from_text, ext = (
+                    os.path.splitext(basename) if not include_ext else (basename, None)
+                )
                 find_text = find or (from_text if not is_reg_ex else "^(.*)$")
-                new_text = re.sub(find_text, replace, from_text, flags=re.A) if is_reg_ex \
+                new_text = (
+                    re.sub(find_text, replace, from_text, flags=re.A)
+                    if is_reg_ex
                     else from_text.replace(find_text, replace)
+                )
 
                 if new_text and re.search(r"%[0-9A-Za-z:!]", new_text):
                     groups = [find_text]
@@ -242,10 +272,14 @@ class PureConsoleRename(G_FileBridge):
                         if matches:
                             groups = [matches.group(0)] + list(matches.groups())
                     try:
-                        new_text = self.apply_macros(new_text, start_index, filename, groups)
+                        new_text = self.apply_macros(
+                            new_text, start_index, filename, groups
+                        )
                     except Exception as e:
                         self.set_file_index_new_name(index)
-                        self.files_state[index] = str(e.args[0]) if len(e.args) > 0 else ""
+                        self.files_state[index] = (
+                            str(e.args[0]) if len(e.args) > 0 else ""
+                        )
                         continue
                     start_index += 1
 
@@ -273,12 +307,19 @@ class PureConsoleRename(G_FileBridge):
             self.allow_renames = False
 
     def get_state_description(self, state):
-        return state if type(state) is str else {
-            STATE_ALREADY_EXISTS: _("Already exists"),
-            STATE_EMPTY: _("Empty"),
-            STATE_NOT_CHANGED: _("Not changed"),
-            STATE_RENAMED: _("Renamed")
-        }.get(state, _("Conflicts with file") + (": %s" % self.files_list_store[state][2]))
+        return (
+            state
+            if type(state) is str
+            else {
+                STATE_ALREADY_EXISTS: _("Already exists"),
+                STATE_EMPTY: _("Empty"),
+                STATE_NOT_CHANGED: _("Not changed"),
+                STATE_RENAMED: _("Renamed"),
+            }.get(
+                state,
+                _("Conflicts with file") + (": %s" % self.files_list_store[state][2]),
+            )
+        )
 
     def add_files(self, uris):
         for uri in uris:
@@ -287,8 +328,13 @@ class PureConsoleRename(G_FileBridge):
             if g_file.query_exists() and filename not in self.files:
                 basename = g_file.get_basename()
                 self.files_list_store.append(
-                    [True, g_file.get_parent().get_path() if g_file.has_parent() else "",
-                     basename, basename])
+                    [
+                        True,
+                        g_file.get_parent().get_path() if g_file.has_parent() else "",
+                        basename,
+                        basename,
+                    ]
+                )
                 self.files.append(filename)
                 self.files_state.append(STATE_NOT_CHANGED)
         self.update_renames()
@@ -321,7 +367,9 @@ class PureConsoleRename(G_FileBridge):
                         self.after_rename(src_file, dst_file, is_native)
                         self.rename_count += 1
                     if not is_silent:
-                        print(f"{src_file} -> {self.get_g_file(dst_file).get_basename()}")
+                        print(
+                            f"{src_file} -> {self.get_g_file(dst_file).get_basename()}"
+                        )
 
     def display_descriptions(self):
         for index, filename in enumerate(self.files):
@@ -330,8 +378,13 @@ class PureConsoleRename(G_FileBridge):
                 sys.stdout.write(f"{filename}: {self.get_state_description(state)}\n")
 
     def console_mode_rename_ready(self, is_sync):
-        self.generate_new_names(self.args.start_index, self.args.reg_ex, self.args.include_ext,
-                                self.args.find, self.args.replace)
+        self.generate_new_names(
+            self.args.start_index,
+            self.args.reg_ex,
+            self.args.include_ext,
+            self.args.find,
+            self.args.replace,
+        )
         if not self.allow_renames:
             if self.exception:
                 sys.stderr.write(_("Error") + f" {self.exception}\n")
@@ -340,7 +393,7 @@ class PureConsoleRename(G_FileBridge):
             exit(1)
         self.console_apply_renames(self.args.test_mode)
         if self.rename_count:
-            sys.stdout.write((_('%d files renamed') % self.rename_count) + "\n")
+            sys.stdout.write((_("%d files renamed") % self.rename_count) + "\n")
         self.display_descriptions()
 
     def console_mode_rename(self):
@@ -363,17 +416,22 @@ class PureConsoleRename(G_FileBridge):
 
     def run_plugin_expr(self, plugin_name, macro, filename, groups):
         plugin = self.plugins.get(plugin_name)
-        return plugin.worker.eval_expr(macro, filename, groups) \
-            if plugin and plugin.worker else macro
+        return (
+            plugin.worker.eval_expr(macro, filename, groups)
+            if plugin and plugin.worker
+            else macro
+        )
 
     def init_plugins(self, replace_field, callback, is_console):
         plugin_names = set(re.findall(r"%!\{(\w+):[^}]*\}", replace_field))
-        if not plugin_names or (set(self.plugins.keys()) == set(plugin_names)
-                                and len(self.files) == self.prepared_files_count):
+        if not plugin_names or (
+            set(self.plugins.keys()) == set(plugin_names)
+            and len(self.files) == self.prepared_files_count
+        ):
             return callback(True)
 
         is_async = False
-        new_files = self.files[self.prepared_files_count:]
+        new_files = self.files[self.prepared_files_count :]
         for plugin_name in plugin_names:
             plugin = self.plugins.get(plugin_name)
             if not plugin:
@@ -390,15 +448,16 @@ class PureConsoleRename(G_FileBridge):
             self.prepare_plugins(callback, True)
         else:
             self.thread_running = True
-            self.demon = threading.Thread(target=self.prepare_plugins,
-                                          args=(callback, False), daemon=True)
+            self.demon = threading.Thread(
+                target=self.prepare_plugins, args=(callback, False), daemon=True
+            )
             self.demon.start()
 
 
 def get_argument_parser():
     arg_parser = argparse.ArgumentParser(
         epilog=format_macros_help(),
-        formatter_class=argparse.RawDescriptionHelpFormatter
+        formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     return arg_parser
 

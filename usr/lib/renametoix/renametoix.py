@@ -3,7 +3,7 @@
 # -*- coding: UTF-8 -*-
 
 # ------------------------------------------------------------------------
-# Copyright (c) 2024-2025 Alexandre Bento Freire. All rights reserved.
+# Copyright (c) 2024-2026 Alexandre Bento Freire. All rights reserved.
 # Licensed under the GPLv3 License.
 # ------------------------------------------------------------------------
 
@@ -20,12 +20,9 @@ import gettext
 import locale
 import crenametoix
 
-import gi
-gi.require_version("Gtk", "3.0")  # noqa
-gi.require_version('Gio', '2.0')  # noqa
-from gi.repository import Gtk, Gdk, GLib, Gio
+from gtk_bootstrap import Gtk, Gdk, GLib, Gio
 
-APP = 'renametoix'
+APP = "renametoix"
 LOCALE_DIR = "/usr/share/locale"
 # APP_ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), '..', '..'))
 # if os.path.exists(f"{APP_ROOT_DIR}/share/locale"):
@@ -40,20 +37,28 @@ REVERT_RENAME_SH = "revert-rename.sh"
 
 console_mode_text = _("Console Mode")
 arg_parser = crenametoix.get_argument_parser()
-arg_parser.add_argument("-console", action='store_true', default=False,
-                        help=console_mode_text)  # noqa
+arg_parser.add_argument(
+    "-console", action="store_true", default=False, help=console_mode_text
+)  # noqa
 crenametoix.add_arguments(arg_parser)
-arg_parser.add_argument("-allow-revert", action='store_true', default=False,
-                        help="%s (%s)" % (_("Generates a revert script"), console_mode_text))
-arg_parser.add_argument("-revert-last", action='store_true', default=False,
-                        help=_("Reverts last rename and exits"))
+arg_parser.add_argument(
+    "-allow-revert",
+    action="store_true",
+    default=False,
+    help="%s (%s)" % (_("Generates a revert script"), console_mode_text),
+)
+arg_parser.add_argument(
+    "-revert-last",
+    action="store_true",
+    default=False,
+    help=_("Reverts last rename and exits"),
+)
 args = crenametoix.get_args_from_parse(arg_parser)
 
 
 # ------------------------------------------------------------------------
 #                               ConsoleRename
 # ------------------------------------------------------------------------
-
 class ConsoleRename(crenametoix.PureConsoleRename):
     def __init__(self, args):
         super().__init__(args)
@@ -62,10 +67,12 @@ class ConsoleRename(crenametoix.PureConsoleRename):
             "revert-path": os.path.join(os.environ["HOME"], ".revert-renames"),
             "allow-revert": False,
             "send-notification": False,
-            "macros": list(crenametoix.macros.keys())
+            "macros": list(crenametoix.macros.keys()),
         }
         self.default_macros = self.cfg["macros"]
-        self.cfg_name = os.path.join(GLib.get_user_config_dir(), 'renametoix', 'renametoix.yaml')
+        self.cfg_name = os.path.join(
+            GLib.get_user_config_dir(), "renametoix", "renametoix.yaml"
+        )
         self.revert_file = None
         self.load_cfg()
 
@@ -84,7 +91,9 @@ class ConsoleRename(crenametoix.PureConsoleRename):
         else:
             try:
                 src_stream = g_source.read(None)
-                dest_stream = g_dest.replace(None, False, Gio.FileCreateFlags.NONE, None)
+                dest_stream = g_dest.replace(
+                    None, False, Gio.FileCreateFlags.NONE, None
+                )
                 buffer_size = 8192
                 while True:
                     data = src_stream.read_bytes(buffer_size, None)
@@ -110,13 +119,16 @@ class ConsoleRename(crenametoix.PureConsoleRename):
         if self.rename_count == 0:
             if not os.path.exists(self.cfg["revert-path"]):
                 os.makedirs(self.cfg["revert-path"], 0o700)
-            self.revert_name = os.path.join(self.cfg["revert-path"], "revert-rename-") + \
-                time.strftime("%Y-%m-%d-%H_%M_%S.sh", time.localtime())
+            self.revert_name = os.path.join(
+                self.cfg["revert-path"], "revert-rename-"
+            ) + time.strftime("%Y-%m-%d-%H_%M_%S.sh", time.localtime())
             self.revert_file = open(self.revert_name, "w")
             self.revert_file.write("echo Reverting Changes:\n\n")
 
-        self.revert_file.write(f"printf \"'{new_basename}' → '{basename}'\\n\" 2>/dev/null\n"
-                               f"mv '{new_fullname}' '{fullname}'\n")
+        self.revert_file.write(
+            f"printf \"'{new_basename}' → '{basename}'\\n\" 2>/dev/null\n"
+            f"mv '{new_fullname}' '{fullname}'\n"
+        )
 
     def exec_revert_script(self, revert_basename=None):
         revert_script = self.get_revert_script(revert_basename)
@@ -124,7 +136,9 @@ class ConsoleRename(crenametoix.PureConsoleRename):
             self.populate_revert_list_store([])
             if len(self.revert_scripts_with_caption) == 0:
                 return 1
-            revert_script = self.get_revert_script(self.revert_scripts_with_caption[0][0])
+            revert_script = self.get_revert_script(
+                self.revert_scripts_with_caption[0][0]
+            )
 
         if os.path.exists(revert_script):
             if revert_script == self.get_revert_script():
@@ -150,7 +164,9 @@ class ConsoleRename(crenametoix.PureConsoleRename):
             os.chmod(main_revert_name, stat.S_IEXEC | stat.S_IREAD | stat.S_IWRITE)
 
     def get_revert_script(self, revert_basename=None):
-        return os.path.join(self.cfg["revert-path"], revert_basename or REVERT_RENAME_SH)
+        return os.path.join(
+            self.cfg["revert-path"], revert_basename or REVERT_RENAME_SH
+        )
 
     def populate_revert_list_store(self, revert_list_store):
         revert_list_store.clear()
@@ -158,18 +174,27 @@ class ConsoleRename(crenametoix.PureConsoleRename):
             self.revert_scripts_with_caption = []
             for script in sorted(os.listdir(self.cfg["revert-path"]), reverse=True):
                 if script.endswith(".sh"):
-                    caption = _("Latest Revert") if script == REVERT_RENAME_SH else \
-                        re.sub(r"revert-rename-([0-9-]+)-(\d+)_(\d+)_(\d+)\.sh",
-                               r"\1 \2:\3:\4", script)
+                    caption = (
+                        _("Latest Revert")
+                        if script == REVERT_RENAME_SH
+                        else re.sub(
+                            r"revert-rename-([0-9-]+)-(\d+)_(\d+)_(\d+)\.sh",
+                            r"\1 \2:\3:\4",
+                            script,
+                        )
+                    )
                     self.revert_scripts_with_caption.append([script, caption])
                     revert_list_store.append([caption])
         return revert_list_store
 
-    def console_apply_renames(self, test_mode=False, allow_revert=None, is_silent=False):
+    def console_apply_renames(
+        self, test_mode=False, allow_revert=None, is_silent=False
+    ):
         if self.allow_renames:
             try:
-                self.allow_revert = allow_revert if allow_revert is not None \
-                    else self.args.allow_revert
+                self.allow_revert = (
+                    allow_revert if allow_revert is not None else self.args.allow_revert
+                )
                 super().console_apply_renames(test_mode, is_silent)
             finally:
                 self.close_revert_script()
@@ -181,8 +206,12 @@ class ConsoleRename(crenametoix.PureConsoleRename):
 
     def after_rename(self, src_file, dst_file, is_native):
         if self.allow_revert and is_native:
-            self.add_revert(src_file, dst_file, os.path.basename(src_file),
-                            os.path.basename(dst_file))
+            self.add_revert(
+                src_file,
+                dst_file,
+                os.path.basename(src_file),
+                os.path.basename(dst_file),
+            )
 
     # Integrations
 
@@ -191,26 +220,30 @@ class ConsoleRename(crenametoix.PureConsoleRename):
         return {
             "thunar": os.path.join(home, ".config/Thunar/uca.xml"),
             "nautilus": os.path.join(home, ".local/share/nautilus/scripts/RenameToIX"),
-            "nemo": os.path.join(home, ".local/share/nemo/actions/RenameToIX.nemo_action")
+            "nemo": os.path.join(
+                home, ".local/share/nemo/actions/RenameToIX.nemo_action"
+            ),
         }
 
     def get_allowed_integrations(self):
         paths = self.get_integrations_paths()
         return {
-            "thunar": os.path.exists("/usr/bin/thunar") and os.path.exists(paths["thunar"]),
+            "thunar": os.path.exists("/usr/bin/thunar")
+            and os.path.exists(paths["thunar"]),
             "nautilus": os.path.exists("/usr/bin/nautilus"),
             "nemo-renamer": os.path.exists("/usr/bin/nemo"),
-            "nemo": os.path.exists("/usr/bin/nemo")
+            "nemo": os.path.exists("/usr/bin/nemo"),
         }
 
     def set_integrations(self, to_integrate):
         paths = self.get_integrations_paths()
         if "nemo-renamer" in to_integrate:
             try:
-                Gio.Settings.new("org.nemo.preferences"). \
-                    set_value("bulk-rename-tool",
-                              GLib.Variant("ay", "/usr/bin/renametoix".encode('utf-8') + b'\0'))
-            except:
+                Gio.Settings.new("org.nemo.preferences").set_value(
+                    "bulk-rename-tool",
+                    GLib.Variant("ay", "/usr/bin/renametoix".encode("utf-8") + b"\0"),
+                )
+            except Exception:
                 pass
 
         if "nemo" in to_integrate and not os.path.exists(paths["nemo"]):
@@ -227,15 +260,19 @@ Quote=single""")
         if "nautilus" in to_integrate and not os.path.exists(paths["nautilus"]):
             os.makedirs(os.path.dirname(paths["nautilus"]), exist_ok=True)
             with open(paths["nautilus"], "w") as f:
-                f.write("/usr/bin/renametoix $NAUTILUS_SCRIPT_SELECTED_URIS "
-                        ">/tmp/nautilus-script.log 2>>/tmp/nautilus-script-err.log")
+                f.write(
+                    "/usr/bin/renametoix $NAUTILUS_SCRIPT_SELECTED_URIS "
+                    ">/tmp/nautilus-script.log 2>>/tmp/nautilus-script-err.log"
+                )
             os.chmod(paths["nautilus"], stat.S_IEXEC | stat.S_IREAD | stat.S_IWRITE)
 
         if "thunar" in to_integrate:
             with open(paths["thunar"], "r+") as f:
                 content = f.read()
                 if "renametoix" not in content:
-                    content = content.replace("</actions>", """<action>
+                    content = content.replace(
+                        "</actions>",
+                        """<action>
 \t<icon>/usr/share/icons/hicolor/scalable/apps/renametoix.svg</icon>
 \t<name>RenameToIX</name>
 \t<submenu></submenu>
@@ -251,7 +288,8 @@ Quote=single""")
 \t<text-files/>
 \t<video-files/>
 </action>
-</actions>""")
+</actions>""",
+                    )
                     f.seek(0)
                     f.write(content)
                     f.truncate()
@@ -260,7 +298,6 @@ Quote=single""")
 # ------------------------------------------------------------------------
 #                               GUIRename
 # ------------------------------------------------------------------------
-
 class GUIRename(ConsoleRename):
 
     def __init__(self, args):
@@ -272,21 +309,37 @@ class GUIRename(ConsoleRename):
 
         self.builder = Gtk.Builder()
         self.builder.set_translation_domain(APP)
-        self.builder.add_from_file(os.path.join(os.path.splitext(sys.argv[0])[0] + ".ui"))
+        self.builder.add_from_file(
+            os.path.join(os.path.splitext(sys.argv[0])[0] + ".ui")
+        )
         self.app_window = self.builder.get_object("app_window")
-        self.find_entry = self.connect("find_entry",
-                                       [[self.update_renames, "changed"],
-                                        [self.entry_key_press, "key-press-event"]])
-        self.replace_entry = self.connect("replace_entry",
-                                          [[self.update_renames, "changed"],
-                                           [self.entry_key_press, "key-press-event"]])
-        self.start_index_label_spin = self.connect("start_index_label_spin",
-                                                   [[self.update_renames, "change-value"]])
-        self.start_index_label_spin.set_adjustment(Gtk.Adjustment(
-            value=1, lower=0, upper=100, step_increment=1, page_increment=10))
+        self.find_entry = self.connect(
+            "find_entry",
+            [
+                [self.update_renames, "changed"],
+                [self.entry_key_press, "key-press-event"],
+            ],
+        )
+        self.replace_entry = self.connect(
+            "replace_entry",
+            [
+                [self.update_renames, "changed"],
+                [self.entry_key_press, "key-press-event"],
+            ],
+        )
+        self.start_index_label_spin = self.connect(
+            "start_index_label_spin", [[self.update_renames, "change-value"]]
+        )
+        self.start_index_label_spin.set_adjustment(
+            Gtk.Adjustment(
+                value=1, lower=0, upper=100, step_increment=1, page_increment=10
+            )
+        )
         self.start_index_label_spin.connect("value-changed", self.update_renames)
         self.reg_ex_button = self.connect("reg_ex_button", [[self.update_renames]])
-        self.include_ext_button = self.connect("include_ext_button", [[self.update_renames]])
+        self.include_ext_button = self.connect(
+            "include_ext_button", [[self.update_renames]]
+        )
         self.connect("macro_button", [[self.macro_button_clicked]])
         self.update_macro_widgets()
         self.connect("about_button", [[self.about_button_clicked]])
@@ -294,7 +347,9 @@ class GUIRename(ConsoleRename):
         self.connect("revert_button", [[self.revert_dialog_clicked]])
         self.connect("move_up_button", [[self.move_up_clicked]])
         self.connect("move_down_button", [[self.move_down_clicked]])
-        self.add_files_button = self.connect("add_files_button", [[self.add_files_button_clicked]])
+        self.add_files_button = self.connect(
+            "add_files_button", [[self.add_files_button_clicked]]
+        )
         self.cancel_button = self.connect("cancel_button", [[self.close_window]])
         # @TODO: Determine why isn't ui translating this button
         self.cancel_button.set_label(_("Cancel"))
@@ -308,8 +363,10 @@ class GUIRename(ConsoleRename):
 
         def get_style_color(flag):
             rgba = style_context.get_color(flag)
-            return f"rgba({int(rgba.red * 255)}, {int(rgba.green * 255)}, " + \
-                f" {int(rgba.blue * 255)}, {rgba.alpha})"
+            return (
+                f"rgba({int(rgba.red * 255)}, {int(rgba.green * 255)}, "
+                + f" {int(rgba.blue * 255)}, {rgba.alpha})"
+            )
 
         style_context = self.files_treeview.get_style_context()
         self.row_colors = {
@@ -317,7 +374,7 @@ class GUIRename(ConsoleRename):
             crenametoix.STATE_EMPTY: get_style_color(Gtk.StateFlags.NORMAL),
             crenametoix.STATE_NOT_CHANGED: get_style_color(Gtk.StateFlags.INSENSITIVE),
             crenametoix.STATE_RENAMED: get_style_color(Gtk.StateFlags.SELECTED),
-            0: "rgba(255, 0, 0, 1)"
+            0: "rgba(255, 0, 0, 1)",
         }
 
         for i, column_title in enumerate(["", _("Path"), _("Before"), _("After")]):
@@ -336,20 +393,26 @@ class GUIRename(ConsoleRename):
             self.files_treeview.append_column(column)
 
         self.settings_dialog = self.builder.get_object("settings_dialog")
-        self.settings_dialog.add_buttons(_("Cancel"), Gtk.ResponseType.CANCEL,
-                                         Gtk.STOCK_OK, Gtk.ResponseType.OK)
+        self.settings_dialog.add_buttons(
+            _("Cancel"), Gtk.ResponseType.CANCEL, Gtk.STOCK_OK, Gtk.ResponseType.OK
+        )
         self.connect("integrate_button", [[self.integrate_clicked]])
 
         self.integrate_dialog = self.builder.get_object("integrate_dialog")
-        self.integrate_dialog.add_buttons(_("Cancel"), Gtk.ResponseType.CANCEL,
-                                          Gtk.STOCK_OK, Gtk.ResponseType.OK)
+        self.integrate_dialog.add_buttons(
+            _("Cancel"), Gtk.ResponseType.CANCEL, Gtk.STOCK_OK, Gtk.ResponseType.OK
+        )
 
         self.revert_dialog = self.builder.get_object("revert_dialog")
         self.revert_dialog.add_buttons(_("Close"), Gtk.ResponseType.CLOSE)
         self.revert_files_tree = self.builder.get_object("revert_files_tree")
-        self.revert_files_tree.append_column(Gtk.TreeViewColumn("", Gtk.CellRendererText(), text=0))
+        self.revert_files_tree.append_column(
+            Gtk.TreeViewColumn("", Gtk.CellRendererText(), text=0)
+        )
         self.connect("execute_revert_button", [[self.execute_revert_button_clicked]])
-        self.connect("open_revert_folder_button", [[self.open_revert_folder_button_clicked]])
+        self.connect(
+            "open_revert_folder_button", [[self.open_revert_folder_button_clicked]]
+        )
         self.about_dialog = self.builder.get_object("about_dialog")
 
         self.start_index_label_spin.set_value(self.args.start_index)
@@ -363,8 +426,9 @@ class GUIRename(ConsoleRename):
         self.drop_box = self.files_treeview
         entry_uri = Gtk.TargetEntry.new("text/uri-list", 0, 0)
         entry_text = Gtk.TargetEntry.new("text/plain", 0, 0)
-        self.drop_box.drag_dest_set(Gtk.DestDefaults.ALL, (entry_uri, entry_text),
-                                    Gdk.DragAction.COPY)
+        self.drop_box.drag_dest_set(
+            Gtk.DestDefaults.ALL, (entry_uri, entry_text), Gdk.DragAction.COPY
+        )
         self.drop_box.connect("drag-data-received", self.on_drag_data_received)
 
         screen = Gdk.Display.get_default().get_monitor(0).get_geometry()
@@ -381,7 +445,9 @@ class GUIRename(ConsoleRename):
         self.files_list_store[index][0] = not self.files_list_store[index][0]
         self.update_renames()
 
-    def on_drag_data_received(self, widget, context, x, y, data, info, _time, user_data=None):
+    def on_drag_data_received(
+        self, widget, context, x, y, data, info, _time, user_data=None
+    ):
         if data:
             dtype = data.get_data_type().name()
             if context.get_selected_action() == Gdk.DragAction.COPY:
@@ -420,8 +486,16 @@ class GUIRename(ConsoleRename):
 
     def add_files_button_clicked(self, width):
         dialog = Gtk.FileChooserDialog(
-            title=_("Add Files"), parent=self.app_window, action=Gtk.FileChooserAction.OPEN,
-            buttons=(_("Cancel"), Gtk.ResponseType.CANCEL, _("Open"), Gtk.ResponseType.OK))
+            title=_("Add Files"),
+            parent=self.app_window,
+            action=Gtk.FileChooserAction.OPEN,
+            buttons=(
+                _("Cancel"),
+                Gtk.ResponseType.CANCEL,
+                _("Open"),
+                Gtk.ResponseType.OK,
+            ),
+        )
         if self.current_folder:
             dialog.set_current_folder(self.current_folder)
         dialog.set_select_multiple(True)
@@ -441,11 +515,16 @@ class GUIRename(ConsoleRename):
     def execute_revert_button_clicked(self, widget):
         path, _focus = self.revert_files_tree.get_cursor()
         if path:
-            script_name, caption = self.revert_scripts_with_caption[path.get_indices()[0]]
+            script_name, caption = self.revert_scripts_with_caption[
+                path.get_indices()[0]
+            ]
             if script_name and self.confirmation_dialog(
-                    _("Are you sure want to execute %s?") % caption):
+                _("Are you sure want to execute %s?") % caption
+            ):
                 self.exec_revert_script(script_name)
-                self.populate_revert_list_store(self.builder.get_object("revert_list_store"))
+                self.populate_revert_list_store(
+                    self.builder.get_object("revert_list_store")
+                )
 
     def files_column_clicked(self, column):
         if self.sort_column:
@@ -455,8 +534,9 @@ class GUIRename(ConsoleRename):
         self.sort_column = column
 
     def macro_button_clicked(self, widget):
-        self.replace_entry.set_text((self.replace_entry.get_text().strip()
-                                     + f" {widget.get_label()}").strip())
+        self.replace_entry.set_text(
+            (self.replace_entry.get_text().strip() + f" {widget.get_label()}").strip()
+        )
         self.update_renames()
 
     def open_revert_folder_button_clicked(self, widget):
@@ -492,9 +572,15 @@ class GUIRename(ConsoleRename):
             self.cfg["allow-revert"] = revert_check.get_active()
             self.cfg["send-notification"] = send_notification_check.get_active()
             self.cfg["revert-path"] = revert_path.get_text().strip()
-            self.cfg["macros"] = macros_editor_buffer.get_text(
-                macros_editor_buffer.get_start_iter(),
-                macros_editor_buffer.get_end_iter(), True).strip().split("\n")
+            self.cfg["macros"] = (
+                macros_editor_buffer.get_text(
+                    macros_editor_buffer.get_start_iter(),
+                    macros_editor_buffer.get_end_iter(),
+                    True,
+                )
+                .strip()
+                .split("\n")
+            )
             self.update_macro_widgets()
             self.save_cfg()
         self.settings_dialog.hide()
@@ -505,7 +591,7 @@ class GUIRename(ConsoleRename):
             "nemo-renamer": "nemo_integrate_rename_check",
             "nemo": "nemo_action_check",
             "nautilus": "nautilus_script_check",
-            "thunar": "thunar_action_check"
+            "thunar": "thunar_action_check",
         }
         for name in managers_names.keys():
             check = self.builder.get_object(managers_names[name])
@@ -528,8 +614,13 @@ class GUIRename(ConsoleRename):
     def add_accelerators(self):
         accelerators = set()
         for object_name in [
-            "find_label", "replace_label", "start_index_label",
-                "reg_ex_button", "include_ext_button", "ok_button", "cancel_button"
+            "find_label",
+            "replace_label",
+            "start_index_label",
+            "reg_ex_button",
+            "include_ext_button",
+            "ok_button",
+            "cancel_button",
         ]:
             obj = self.builder.get_object(object_name)
             caption = obj.get_text() if isinstance(obj, Gtk.Label) else obj.get_label()
@@ -556,7 +647,9 @@ class GUIRename(ConsoleRename):
 
     def apply_renames(self):
         if self.allow_renames:
-            self.console_apply_renames(allow_revert=self.cfg["allow-revert"], is_silent=True)
+            self.console_apply_renames(
+                allow_revert=self.cfg["allow-revert"], is_silent=True
+            )
             self.notify_msg(_("%d files renamed") % self.rename_count)
 
     def close_window(self, widget=None):
@@ -590,17 +683,26 @@ class GUIRename(ConsoleRename):
 
     def notify_msg(self, msg=""):
         if self.cfg["send-notification"]:
-            os.system("command -v notify-send >/dev/null && notify-send -t 3000 "
-                      f"'{msg}' > /dev/null 2>&1")
+            os.system(
+                "command -v notify-send >/dev/null && notify-send -t 3000 "
+                f"'{msg}' > /dev/null 2>&1"
+            )
 
     def save_cfg(self):
         cfg_path = os.path.dirname(self.cfg_name)
         if not os.path.isdir(cfg_path):
             os.makedirs(cfg_path)
         with open(self.cfg_name, "wt", encoding="utf8") as output_file:
-            output_file.write(yaml.dump(self.cfg, default_flow_style=False, sort_keys=False,
-                                        allow_unicode=True, encoding="utf-8",
-                                        width=200).decode("utf-8"))
+            output_file.write(
+                yaml.dump(
+                    self.cfg,
+                    default_flow_style=False,
+                    sort_keys=False,
+                    allow_unicode=True,
+                    encoding="utf-8",
+                    width=200,
+                ).decode("utf-8")
+            )
         if self.ready:
             self.update_macro_widgets()
 
@@ -616,7 +718,9 @@ class GUIRename(ConsoleRename):
         for macro in macros:
             menuitem = Gtk.MenuItem(label=macro, visible=True)
             macro_description = crenametoix.macros.get(macro)
-            menuitem.set_tooltip_text(_(macro_description) if macro_description else tooltip)
+            menuitem.set_tooltip_text(
+                _(macro_description) if macro_description else tooltip
+            )
             menuitem.connect("activate", self.macro_button_clicked)
             macros_popup.append(menuitem)
 
@@ -628,7 +732,7 @@ class GUIRename(ConsoleRename):
             self.reg_ex_button.get_active(),
             self.include_ext_button.get_active(),
             self.find_entry.get_text(),
-            self.replace_entry.get_text()
+            self.replace_entry.get_text(),
         )
         self.visual_allow_renames(self.allow_renames)
 
@@ -636,7 +740,9 @@ class GUIRename(ConsoleRename):
         if self.ready:
             self.ready = False
             self.visual_allow_renames(False)
-            self.init_plugins(self.replace_entry.get_text(), self.update_rename_ready, False)
+            self.init_plugins(
+                self.replace_entry.get_text(), self.update_rename_ready, False
+            )
 
     def visual_allow_renames(self, enabled):
         self.ok_button.set_sensitive(enabled)

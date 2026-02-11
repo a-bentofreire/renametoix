@@ -2,7 +2,7 @@
 # -*- coding: UTF-8 -*-
 
 # ------------------------------------------------------------------------
-# Copyright (c) 2024-2025 Alexandre Bento Freire. All rights reserved.
+# Copyright (c) 2024-2026 Alexandre Bento Freire. All rights reserved.
 # Licensed under the GPLv3 License.
 # ------------------------------------------------------------------------
 
@@ -19,7 +19,7 @@ class GeoWorker:
         return True
 
     def get_extensions(self):
-        return ['.jpg', '.jpeg']
+        return [".jpg", ".jpeg"]
 
     def eval_expr(self, macro, filename, groups):
         fields = self.files[filename]
@@ -40,14 +40,16 @@ class GeoWorker:
         coordinates = f"{latitude}, {longitude}"
         location = geolocator.reverse(coordinates, language="en")
 
-        if location and location.raw.get('address'):
-            address = location.raw['address']
+        if location and location.raw.get("address"):
+            address = location.raw["address"]
             return {
-                'country': address.get('country'),
-                'state': address.get('state'),
-                'city': address.get('city') or address.get('town') or address.get('village'),
-                'postcode': address.get('postcode'),
-                'suburb': address.get('suburb')
+                "country": address.get("country"),
+                "state": address.get("state"),
+                "city": address.get("city")
+                or address.get("town")
+                or address.get("village"),
+                "postcode": address.get("postcode"),
+                "suburb": address.get("suburb"),
             }
         return None
 
@@ -60,12 +62,15 @@ class GeoWorker:
                 ref = gps_info.get(index)
                 if not values or not ref:
                     return None
-                decimal = (values[0][0] / values[0][1]) + ((values[1][0] / values[1][1]) / 60.0) \
+                decimal = (
+                    (values[0][0] / values[0][1])
+                    + ((values[1][0] / values[1][1]) / 60.0)
                     + (values[2][0] / values[2][1] / 3600.0)
-                return -decimal if ref in [b'S', b'W'] else decimal
+                )
+                return -decimal if ref in [b"S", b"W"] else decimal
 
             return (calc_coord(1), calc_coord(3)) if gps_info else (None, None)
-        except:
+        except Exception:
             return None, None
 
 

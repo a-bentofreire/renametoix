@@ -1,3 +1,11 @@
+renametoix (1.5.2) noble; urgency=low
+
+  * Change to code formatting using Black
+  * Change to Lint using ruff
+  * Change Description in desktop file into Comment
+
+ -- Alexandre Bento Freire <dev@a-bentofreire.com>  Tue, 10 Feb 2026 17:40:27 +0000
+
 renametoix (1.5.1) noble; urgency=low
 
   * Output macros name and description on help

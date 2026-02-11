@@ -1,3 +1,10 @@
+crenametoix (1.5.2) noble; urgency=low
+
+  * Change to code formatting using Black
+  * Change to Lint using ruff
+
+ -- Alexandre Bento Freire <dev@a-bentofreire.com>  Thu, 05 Feb 2026 11:52:01 +0000
+
 crenametoix (1.5.1) noble; urgency=low
 
   * Output macros name and description on help

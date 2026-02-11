@@ -2,7 +2,7 @@
 # -*- coding: UTF-8 -*-
 
 # ------------------------------------------------------------------------
-# Copyright (c) 2024-2025 Alexandre Bento Freire. All rights reserved.
+# Copyright (c) 2024-2026 Alexandre Bento Freire. All rights reserved.
 # Licensed under the GPLv3 License.
 # ------------------------------------------------------------------------
 
@@ -17,7 +17,7 @@ class DocWorker:
         return True
 
     def get_extensions(self):
-        return ['.doc', '.docx']
+        return [".doc", ".docx"]
 
     def eval_expr(self, macro, filename, groups):
         header = self.files[filename]
@@ -34,7 +34,7 @@ class DocWorker:
                     if paragraph.style.name.startswith("Heading"):
                         header = paragraph.text
                         break
-            except:
+            except Exception:
                 pass
             self.files[filename] = header
 
